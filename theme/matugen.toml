@@ -9,3 +9,10 @@ set       = true
 input_path  = '~/dotfiles/theme/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors.conf'
 post_hook   = 'pkill -USR1 kitty'
+
+[templates.mango]
+input_path  = '~/dotfiles/theme/templates/mango-colors.conf'
+output_path = '~/.config/mango/colors.conf'
+post_hook   = 'mmsg dispatch reload_config'
+
+
