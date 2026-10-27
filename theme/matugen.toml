@@ -1,5 +1,10 @@
 [config]
 
+[config.wallpaper]
+command   = "awww"
+arguments = ["img", "--transition-type", "fade", "--transition-pos", "center", "--transition-duration", "2.5", "--transition-fps", "144"]
+set       = true
+
 [templates.kitty]
 input_path  = '~/dotfiles/theme/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors.conf'
