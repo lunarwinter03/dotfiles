@@ -4,16 +4,17 @@ import Quickshell
 
 PanelWindow {
     id: bar
-    required property var modelData
+    required property var modelData 
     screen: modelData
+    readonly property real borderMain: Config.borderMode !== "none" ? Config.borderWidth : 0
+    readonly property real borderTab:  Config.borderMode !== "none" ? Config.borderWidthTab : 0
 
     anchors { top: true; left: true; right: true }
 
     // Fenster ist höher als die Leiste, damit der Datumsbereich überstehen kann
-    implicitHeight: Theme.barHeight + Theme.dateHeight
-    // ... aber nur die Leiste selbst reserviert Platz
-    exclusiveZone: Theme.barHeight
-    color: "transparent"
+        implicitHeight: Math.ceil(Theme.barHeight + Math.max(Theme.dateHeight + borderTab, borderMain))
+	exclusiveZone:  Math.ceil(Theme.barHeight + borderMain)
+	color: "transparent"
 
     // Klicks nur auf Leiste und Datumsbereich annehmen
     mask: Region {
@@ -78,5 +79,11 @@ PanelWindow {
             color: Theme.fgDim
             font.pixelSize: 10
         }
+    }
+    // ===== Optionale Unterkante =====
+    Loader {
+        anchors.fill: parent
+        active: Config.borderMode !== "none"
+        sourceComponent: Component { BarBorder {} }
     }
 }

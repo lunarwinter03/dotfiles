@@ -17,6 +17,7 @@ Singleton {
     readonly property color fg:     "#d4d4d8"
     readonly property color fgDim:  "#7a808c"
     readonly property color accent: "#61afef"
+    readonly property color accentAlt: "#c678dd"
 
     // --- Maße ---
     readonly property int barHeight:  25
