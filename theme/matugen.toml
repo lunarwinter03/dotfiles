@@ -14,4 +14,6 @@ input_path  = '~/dotfiles/theme/templates/mango-colors.conf'
 output_path = '~/.config/mango/colors.conf'
 post_hook   = 'mmsg dispatch reload_config'
 
-
+[templates.colors-json]
+input_path  = '~/dotfiles/theme/templates/colors.json'
+output_path = '~/.local/state/theme/colors.json'
