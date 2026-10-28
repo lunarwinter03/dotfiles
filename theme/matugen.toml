@@ -1,5 +1,13 @@
 [config]
 
+[config.custom_colors]
+red     = { color = "#e05561", blend = true }
+green   = { color = "#5fb35f", blend = true }
+yellow  = { color = "#d8b14a", blend = true }
+blue    = { color = "#4f8fe0", blend = true }
+magenta = { color = "#c46ad6", blend = true }
+cyan    = { color = "#45b5c4", blend = true }
+
 [config.wallpaper]
 command = "awww img --transition-type fade --transition-pos center --transition-duration 2.5 --transition-fps 144 {{ image }}"
 set       = true
@@ -7,6 +15,11 @@ set       = true
 [templates.kitty]
 input_path  = '~/dotfiles/theme/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors.conf'
+post_hook   = 'pkill -USR1 kitty || true'
+
+[templates.kitty-ansi]
+input_path  = '~/dotfiles/theme/templates/kitty-ansi.conf'
+output_path = '~/.config/kitty/ansi-matugen.conf'
 post_hook   = 'pkill -USR1 kitty || true'
 
 [templates.mango]

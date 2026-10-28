@@ -68,7 +68,7 @@ bindkey '^[[F'    end-of-line          # Ende
 # ===== Aliase =====
 alias zedit="nvim ~/dotfiles/zsh/.zshrc"
 alias themedit="nvim ~/dotfiles/theme/ansi.conf"
-alias colors='for i in {0..15}; do print -Pn "%K{$i}  $(printf %2d $i)  %k"; ((i==7)) && echo; done; echo'
+alias colors='for i in {0..15}; do print -Pn "%K{$i}  $(printf %2d $i)  %k"; ((i==7)) && echo; done; echo;for i in {0..15}; do print -Pn "%F{$i}██ $(printf %2d $i)%f  "; ((i==7)) && echo; done; echo'
 alias qsr='pkill -x qs; pkill -x quickshell; setsid qs >/dev/null 2>&1 &'
 
 # ===== Plugins (müssen am Ende stehen) =====
