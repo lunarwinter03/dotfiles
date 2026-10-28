@@ -45,4 +45,16 @@ Singleton {
     readonly property string iconGpu:  String.fromCodePoint(0xF08AE)
     readonly property string iconVram: String.fromCodePoint(0xF02F0)
     readonly property string iconRam:  String.fromCodePoint(0xF035B)
+
+    // ===== Netzwerk =====
+    readonly property bool networkShowName: true   // WLAN-Namen in der Leiste anzeigen
+    readonly property int  networkNameMaxWidth: 100 // längere Namen werden gekürzt (px)
+
+    // Symbole: WLAN schwach -> stark, aus, Kabel, keine Verbindung
+    readonly property var iconsWifi: [
+        0xF092F, 0xF091F, 0xF0922, 0xF0925, 0xF0928
+    ].map(c => String.fromCodePoint(c))
+    readonly property string iconWifiOff:      String.fromCodePoint(0xF05AA)
+    readonly property string iconEthernet:     String.fromCodePoint(0xF0200)
+    readonly property string iconDisconnected: String.fromCodePoint(0xF0319)
 }
