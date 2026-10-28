@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Intensität der ANSI-Farben einstellen und sofort anwenden.
+#
+#   ansi-tune                    aktuelle Werte und Palette anzeigen
+#   ansi-tune 0.10 0.40          Rot/Grün und übrige Farben setzen
+#   ansi-tune 0.10 0.40 15       zusätzlich Aufhellung der Hell-Varianten
+
+set -euo pipefail
+
+BIN="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SETTINGS="$HOME/dotfiles/theme/ansi.json"
+STATE="$HOME/.local/state/theme"
+
+show() {
+  jq -r '.ansi | "Rot/Grün: \(.blend_semantic)   übrige: \(.blend_other)   aufhellen: \(.lighten)"' "$SETTINGS"
+}
+
+palette() {
+  for i in {0..15}; do
+    printf '\e[38;5;%dm██ %2d\e[0m  ' "$i" "$i"
+    if (( i == 7 )); then echo; fi
+  done
+  echo
+}
+
+is_blend() { [[ "$1" =~ ^(0(\.[0-9]+)?|1(\.0+)?)$ ]]; }
+is_num()   { [[ "$1" =~ ^[0-9]+(\.[0-9]+)?$ ]]; }
+
+# Ohne Argumente: nur anzeigen
+if (( $# == 0 )); then
+  show
+  palette
+  exit 0
+fi
+
+sem="$1"
+other="${2:-}"
+light="${3:-}"
+
+if ! is_blend "$sem"; then
+  echo "Rot/Grün muss zwischen 0 und 1 liegen (z.B. 0.15)" >&2; exit 1
+fi
+if [[ -n "$other" ]] && ! is_blend "$other"; then
+  echo "Übrige Farben müssen zwischen 0 und 1 liegen (z.B. 0.30)" >&2; exit 1
+fi
+if [[ -n "$light" ]] && ! is_num "$light"; then
+  echo "Aufhellen muss eine Zahl sein (z.B. 12)" >&2; exit 1
+fi
+
+# Aktuelle Quellfarbe und Schema, um das Theme ohne Wallpaper-Wechsel neu zu erzeugen
+source_color=$(jq -r '.source_color // empty' "$STATE/colors.json" 2>/dev/null || true)
+scheme=$(cat "$STATE/scheme" 2>/dev/null || echo scheme-tonal-spot)
+if [[ -z "$source_color" ]]; then
+  echo "Keine aktuelle Quellfarbe gefunden. Bitte einmal ein Wallpaper über den Picker setzen." >&2
+  exit 1
+fi
+
+# Werte schreiben (über eine temporäre Datei, damit nie eine halbe Datei entsteht)
+tmp=$(mktemp)
+jq --arg s "$sem" --arg o "$other" --arg l "$light" '
+    .ansi.blend_semantic = ($s | tonumber)
+  | if $o != "" then .ansi.blend_other = ($o | tonumber) else . end
+  | if $l != "" then .ansi.lighten     = ($l | tonumber) else . end
+' "$SETTINGS" > "$tmp"
+mv "$tmp" "$SETTINGS"
+
+# Mit gleicher Quellfarbe und gleichem Schema neu anwenden
+"$BIN/theme-apply" color hex "$source_color" -m dark -t "$scheme" > /dev/null
+
+show
+palette

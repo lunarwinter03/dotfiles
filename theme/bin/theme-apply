@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Einstiegspunkt für matugen: hängt die Regler aus ansi.json an
+# und merkt sich das Schema für ansi-tune.
+#
+# Aufruf wie matugen selbst, z.B.:
+#   theme-apply image ~/Pictures/Wallpapers/x.png -m dark -t scheme-vibrant
+
+set -euo pipefail
+
+STATE="$HOME/.local/state/theme"
+SETTINGS="$HOME/dotfiles/theme/ansi.json"
+
+# Schema (-t <name>) aus den Argumenten merken
+args=("$@")
+for ((i = 0; i < ${#args[@]} - 1; i++)); do
+  if [[ "${args[i]}" == "-t" ]]; then
+    mkdir -p "$STATE"
+    printf '%s\n' "${args[i+1]}" > "$STATE/scheme"
+  fi
+done
+
+exec matugen "$@" --import-json "$SETTINGS"

@@ -126,7 +126,7 @@ init_theme() {
   if [[ -f "$HOME/.local/state/theme/colors.json" ]]; then
     printf '   ok   Theme existiert bereits\n'
   else
-    run matugen color hex "#7aa2f7" -m dark \
+    run "$DOTFILES/theme/bin/theme-apply" color hex "#7aa2f7" -m dark -t scheme-vibrant \
       || warn "matugen meldete Fehler. Außerhalb einer Mango-Sitzung ist das normal."
   fi
 }

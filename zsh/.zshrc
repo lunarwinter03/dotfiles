@@ -1,5 +1,8 @@
 # ~/.zshrc  (Original: ~/dotfiles/zsh/.zshrc)
 
+# Eigene Befehle aus den dotfiles
+path=("$HOME/dotfiles/theme/bin" $path)
+
 # ===== Prompt =====
 PROMPT='%F{magenta}%n%f@%F{blue}%m%f %F{blue}%~ %f%(!.#.$) '
 

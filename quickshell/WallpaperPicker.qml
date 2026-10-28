@@ -154,11 +154,12 @@ PanelWindow {
             return
         // Quellfarbe nur übernehmen, wenn sie zu genau diesem Bild gehört
         const src = (index === list.currentIndex) ? picker.sourceIndex : 0
-        Quickshell.execDetached(["matugen", "image", path,
+        Quickshell.execDetached([Quickshell.env("HOME") + "/dotfiles/theme/bin/theme-apply",
+                                 "image", path,
                                  "-m", "dark",
                                  "-t", picker.scheme,
-                                 "--source-color-index", String(src)])
-        if (Config.pickerCloseOnApply)
+				 "--source-color-index", String(src)])
+	if (Config.pickerCloseOnApply)
             Popups.closeAll()
     }
 
