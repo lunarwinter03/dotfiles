@@ -7,12 +7,12 @@ set       = true
 [templates.kitty]
 input_path  = '~/dotfiles/theme/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors.conf'
-post_hook   = 'pkill -USR1 kitty'
+post_hook   = 'pkill -USR1 kitty || true'
 
 [templates.mango]
 input_path  = '~/dotfiles/theme/templates/mango-colors.conf'
 output_path = '~/.config/mango/colors.conf'
-post_hook   = 'mmsg dispatch reload_config'
+post_hook   = 'mmsg dispatch reload_config 2>/dev/null || true'
 
 [templates.colors-json]
 input_path  = '~/dotfiles/theme/templates/colors.json'
