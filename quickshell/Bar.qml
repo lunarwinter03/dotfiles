@@ -9,6 +9,9 @@ PanelWindow {
     readonly property real borderMain: Config.borderMode !== "none" ? Config.borderWidth : 0
     readonly property real borderTab:  Config.borderMode !== "none" ? Config.borderWidthTab : 0
 
+    // Daten dieses Monitors aus Mango (null, solange noch nichts da ist)
+    readonly property var mon: Mango.monitors[modelData.name] ?? null
+
     anchors { top: true; left: true; right: true }
 
     // Fenster ist höher als die Leiste, damit der Datumsbereich überstehen kann
@@ -33,6 +36,13 @@ PanelWindow {
             GradientStop { position: 0.0; color: Theme.bgTop }
             GradientStop { position: 1.0; color: Theme.bgBottom }
         }
+    }
+
+    // ===== Layout und Tags (links) =====
+    Tags {
+        mon: bar.mon
+        anchors { left: parent.left; leftMargin: 8 }
+        height: Theme.barHeight
     }
 
     // ===== Uhrzeit (Mitte) =====
@@ -80,6 +90,37 @@ PanelWindow {
             font.pixelSize: 10
         }
     }
+
+    // ===== Systemanzeige (rechts) =====
+    Row {
+        anchors { right: parent.right; rightMargin: 8 }
+        height: Theme.barHeight
+        spacing: 12
+
+        StatItem {
+            anchors.verticalCenter: parent.verticalCenter
+            icon: Config.iconCpu
+            value: Stats.cpu
+            temp: Stats.cpuTemp
+        }
+        StatItem {
+            anchors.verticalCenter: parent.verticalCenter
+            icon: Config.iconGpu
+            value: Stats.gpu
+            temp: Stats.gpuTemp
+        }
+        StatItem {
+            anchors.verticalCenter: parent.verticalCenter
+            icon: Config.iconVram
+            value: Config.statsShowVram ? Stats.vram : -1
+        }
+        StatItem {
+            anchors.verticalCenter: parent.verticalCenter
+            icon: Config.iconRam
+            value: Stats.ram
+        }
+    }
+
     // ===== Optionale Unterkante =====
     Loader {
         anchors.fill: parent

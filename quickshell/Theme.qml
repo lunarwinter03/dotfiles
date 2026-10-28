@@ -18,6 +18,15 @@ Singleton {
     readonly property color fgDim:  "#7a808c"
     readonly property color accent: "#61afef"
     readonly property color accentAlt: "#c678dd"
+    readonly property color urgent: "#e06c75"
+    // --- Rahmen ---
+    readonly property color outlineVariant: "#3a3d44"
+
+
+    // --- Tags ---
+    readonly property int tagSize:        18   // Kantenlänge der Kästchen
+    readonly property int tagRadius:      3
+    readonly property int tagBorderWidth: 1
 
     // --- Maße ---
     readonly property int barHeight:  25
