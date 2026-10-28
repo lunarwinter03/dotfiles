@@ -5,5 +5,6 @@
   "primary":            "{{colors.primary.default.hex}}",
   "tertiary":           "{{colors.tertiary.default.hex}}",
   "outline_variant":    "{{colors.outline_variant.default.hex}}",
-  "error":              "{{colors.error.default.hex}}"
+  "error":              "{{colors.error.default.hex}}",
+  "source_color":	"{{colors.source_color.default.hex}}"
 }

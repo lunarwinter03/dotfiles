@@ -22,6 +22,7 @@ Singleton {
             property string tertiary:           "#c678dd"
             property string outline_variant:    "#3a3d44"
             property string error:              "#e06c75"
+	    property string source_color:	""
         }
     }
 
@@ -33,6 +34,7 @@ Singleton {
     readonly property color accentAlt:      c.tertiary
     readonly property color outlineVariant: c.outline_variant
     readonly property color urgent:         c.error
+    readonly property string sourceColor:   c.source_color
 
     // Alpha
     readonly property real bgAlphaTop:    0.9
