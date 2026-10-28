@@ -49,4 +49,5 @@ Singleton {
     readonly property int barHeight:  25
     readonly property int dateHeight: 10
     readonly property int dateWidth:  100
+    readonly property int groupGap: 24
 }

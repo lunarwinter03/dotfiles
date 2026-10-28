@@ -91,33 +91,52 @@ PanelWindow {
         }
     }
 
-    // ===== Systemanzeige (rechts) =====
+        // ===== Rechte Seite =====
     Row {
         anchors { right: parent.right; rightMargin: 8 }
         height: Theme.barHeight
-        spacing: 12
+        spacing: Theme.groupGap
 
-        StatItem {
+        // ----- Gruppe 1: Systemwerte -----
+        Row {
             anchors.verticalCenter: parent.verticalCenter
-            icon: Config.iconCpu
-            value: Stats.cpu
-            temp: Stats.cpuTemp
+            spacing: 12
+
+            StatItem {
+                anchors.verticalCenter: parent.verticalCenter
+                icon: Config.iconCpu
+                value: Stats.cpu
+                temp: Stats.cpuTemp
+            }
+            StatItem {
+                anchors.verticalCenter: parent.verticalCenter
+                icon: Config.iconGpu
+                value: Stats.gpu
+                temp: Stats.gpuTemp
+            }
+            StatItem {
+                anchors.verticalCenter: parent.verticalCenter
+                icon: Config.iconVram
+                value: Config.statsShowVram ? Stats.vram : -1
+            }
+            StatItem {
+                anchors.verticalCenter: parent.verticalCenter
+                icon: Config.iconRam
+                value: Stats.ram
+            }
         }
-        StatItem {
+
+        // ----- Gruppe 2: Verbindung und Strom -----
+        Row {
             anchors.verticalCenter: parent.verticalCenter
-            icon: Config.iconGpu
-            value: Stats.gpu
-            temp: Stats.gpuTemp
-        }
-        StatItem {
-            anchors.verticalCenter: parent.verticalCenter
-            icon: Config.iconVram
-            value: Config.statsShowVram ? Stats.vram : -1
-        }
-        StatItem {
-            anchors.verticalCenter: parent.verticalCenter
-            icon: Config.iconRam
-            value: Stats.ram
+            spacing: 12
+            // Ohne sichtbaren Inhalt (PC ohne Akku) auch keinen Abstand erzeugen
+            visible: battery.visible
+
+            Battery {
+                id: battery
+                anchors.verticalCenter: parent.verticalCenter
+            }
         }
     }
 
