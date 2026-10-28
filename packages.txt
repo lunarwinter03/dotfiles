@@ -1,0 +1,36 @@
+# Pakete für das dotfiles-Setup (alle aus den offiziellen Arch-Repos)
+# Kommentare mit # sind erlaubt, auch hinter einem Paketnamen.
+
+# ===== Basis =====
+git
+jq
+neovim
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+
+# ===== Terminal und Schriften =====
+kitty
+adwaita-fonts                  # Adwaita Mono für kitty
+ttf-nerd-fonts-symbols-mono    # Symbole in der Leiste
+
+# ===== Desktop =====
+mangowm
+quickshell
+awww
+matugen
+fuzzel
+dunst
+xdg-desktop-portal-wlr
+ly
+
+# ===== Werkzeuge für Tastenkürzel und Leiste =====
+grim
+slurp
+wl-clipboard
+playerctl
+wireplumber                    # stellt wpctl bereit
+wlr-randr                      # Monitornamen und -modi ermitteln
+
+# ===== Programme =====
+
