@@ -84,6 +84,7 @@ install_packages() {
         "$DOTFILES/packages.txt" | grep -v '^$'
   )
   run sudo pacman -S --needed "${pkgs[@]}"
+  run sudo pacman -D --asexplicit "${pkgs[@]}"
 }
 
 link_files() {
