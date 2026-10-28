@@ -155,4 +155,10 @@ PanelWindow {
         active: Config.borderMode !== "none"
         sourceComponent: Component { BarBorder {} }
     }
+
+
+    // ===== Wallpaper-Picker (eigenes Fenster) =====
+    WallpaperPicker {
+        targetScreen: bar.modelData
+    }
 }

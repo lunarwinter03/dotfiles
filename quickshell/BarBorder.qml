@@ -14,6 +14,9 @@ Item {
     readonly property real w:  Config.borderWidth      // unter der Hauptleiste
     readonly property real t:  Config.borderWidthTab   // um den Datumsbereich
     readonly property real s2: Math.SQRT2              // für die 45°-Ecken
+    // Verstärkte Farben der Unterkante
+    readonly property color colorA: Theme.boost(Config.borderColorA, Config.borderSaturation, Config.borderLightness)
+    readonly property color colorB: Theme.boost(Config.borderColorB, Config.borderSaturation, Config.borderLightness)
 
     // ===== Animation: verschiebt das Farbmuster =====
     property real patternShift: 0
@@ -65,9 +68,9 @@ Item {
         x1: root.patternShift;              y1: 0
         x2: root.patternShift + root.width; y2: 0
         spread: ShapeGradient.RepeatSpread
-        GradientStop { position: 0.0; color: Config.borderColorA }
-        GradientStop { position: 0.5; color: Config.borderColorB }
-        GradientStop { position: 1.0; color: Config.borderColorA }
+        GradientStop { position: 0.0; color: root.colorA }
+        GradientStop { position: 0.5; color: root.colorB }
+	GradientStop { position: 1.0; color: root.colorA }
     }
 
     LinearGradient {

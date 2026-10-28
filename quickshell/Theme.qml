@@ -52,4 +52,13 @@ Singleton {
     readonly property int dateHeight: 10
     readonly property int dateWidth:  100
     readonly property int groupGap: 24
+
+
+    function boost(c, satFactor, lightness) {
+        const l = lightness >= 0 ? lightness : c.hslLightness
+        if (c.hslHue < 0)                        // Grautöne haben keinen Farbton
+            return Qt.hsla(0, 0, l, c.a)
+        const s = Math.min(1, c.hslSaturation * satFactor)
+        return Qt.hsla(c.hslHue, s, l, c.a)
+    }
 }

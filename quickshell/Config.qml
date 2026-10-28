@@ -15,6 +15,8 @@ Singleton {
     readonly property bool borderAnimated: true // nur für gradient/rgb
     readonly property real borderSpeed: 5       // Sekunden pro Durchlauf
     readonly property string borderDirection: "right" // Richtung wohin (to) <left|right>
+    readonly property real borderSaturation: 1.8   // 1.0 = unverändert, 2.0 = doppelt (max. 100 %)
+    readonly property real borderLightness:  0.6   // Ziel-Helligkeit 0–1, -1 = unverändert
 
     // Farben für "gradient"
     readonly property color borderColorA: Theme.accent
@@ -66,4 +68,20 @@ Singleton {
     readonly property string iconLock:     String.fromCodePoint(0xF033E)
     readonly property string iconExpand:   String.fromCodePoint(0xF0140)
     readonly property string iconCollapse: String.fromCodePoint(0xF0143)
+
+    // ===== Wallpaper-Picker =====
+    readonly property string pickerFolder:       "Pictures/Wallpapers"  // relativ zu ~
+    readonly property string pickerOrientation:  "horizontal"           // oder "vertical"
+    readonly property int    pickerThumbWidth:   240                    // Breite einer Vorschau (px)
+    readonly property int    pickerMaxVisible:   5                      // höchstens so viele gleichzeitig
+    readonly property bool   pickerCloseOnApply: true                   // nach Auswahl schließen
+
+    readonly property var pickerSchemes: [
+        "scheme-tonal-spot",
+        "scheme-vibrant",
+        "scheme-expressive",
+        "scheme-fidelity",
+        "scheme-content"
+    ]
+    readonly property string pickerDefaultScheme: "scheme-vibrant"
 }
