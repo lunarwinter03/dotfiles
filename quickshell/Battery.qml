@@ -33,6 +33,7 @@ Row {
     // Kein Akku (z.B. am PC): gar nicht anzeigen
     visible: available
 
+
     TextMetrics {
         id: valueMetrics
         font: valueText.font

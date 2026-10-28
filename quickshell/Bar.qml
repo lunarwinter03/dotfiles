@@ -131,7 +131,7 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 12
             // Ohne sichtbaren Inhalt (PC ohne Akku) auch keinen Abstand erzeugen
-            visible: battery.visible
+            visible: battery.available
 
             Battery {
                 id: battery
