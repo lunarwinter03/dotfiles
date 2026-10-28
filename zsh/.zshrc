@@ -51,6 +51,20 @@ for km in emacs viins vicmd; do
   [[ -n "${terminfo[kcud1]}" ]] && bindkey -M $km "${terminfo[kcud1]}" down-line-or-history
 done
 
+# Sondertasten (übernahm früher oh-my-zsh)
+bindkey '^[[1;5D' backward-word        # Strg+Links:  ein Wort zurück
+bindkey '^[[1;5C' forward-word         # Strg+Rechts: ein Wort vor
+bindkey '^[[1;5A' up-line-or-history   # Strg+Hoch:   wie Hoch
+bindkey '^[[1;5B' down-line-or-history # Strg+Runter: wie Runter
+bindkey '^[[3~'   delete-char          # Entf
+bindkey '^[[3;5~' kill-word            # Strg+Entf:   Wort rechts löschen
+bindkey '^H'      backward-kill-word   # Strg+Backspace: Wort links löschen
+bindkey '^[[H'    beginning-of-line    # Pos1
+bindkey '^[[F'    end-of-line          # Ende
+[[ -n "${terminfo[khome]}" ]] && bindkey "${terminfo[khome]}" beginning-of-line
+[[ -n "${terminfo[kend]}"  ]] && bindkey "${terminfo[kend]}"  end-of-line
+[[ -n "${terminfo[kdch1]}" ]] && bindkey "${terminfo[kdch1]}" delete-char
+
 # ===== Aliase =====
 alias zedit="nvim ~/dotfiles/zsh/.zshrc"
 alias themedit="nvim ~/dotfiles/theme/ansi.conf"
