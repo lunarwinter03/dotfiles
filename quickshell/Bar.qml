@@ -36,6 +36,11 @@ PanelWindow {
             GradientStop { position: 0.0; color: Theme.bgTop }
             GradientStop { position: 1.0; color: Theme.bgBottom }
         }
+	// Klick irgendwo auf die Leiste schließt offene Fenster
+        MouseArea {
+            anchors.fill: parent
+            onClicked: Popups.closeAll()
+        }
     }
 
     // ===== Layout und Tags (links) =====
@@ -133,7 +138,8 @@ PanelWindow {
             visible: network.available || battery.available
 
             Network {
-                id: network
+		id: network
+		screenData: bar.modelData
                 anchors.verticalCenter: parent.verticalCenter
             }
             Battery {

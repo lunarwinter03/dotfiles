@@ -57,4 +57,13 @@ Singleton {
     readonly property string iconWifiOff:      String.fromCodePoint(0xF05AA)
     readonly property string iconEthernet:     String.fromCodePoint(0xF0200)
     readonly property string iconDisconnected: String.fromCodePoint(0xF0319)
+
+    // ===== Netzwerk-Fenster =====
+    readonly property int  networkPopupMaxHeight: 320   // danach scrollt die Liste
+    readonly property bool networkPinConnected: true    // verbundenes Netz immer oben
+    readonly property int  networkRefreshSeconds: 10    // Aktualisierung, solange offen
+
+    readonly property string iconLock:     String.fromCodePoint(0xF033E)
+    readonly property string iconExpand:   String.fromCodePoint(0xF0140)
+    readonly property string iconCollapse: String.fromCodePoint(0xF0143)
 }

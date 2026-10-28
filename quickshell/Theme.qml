@@ -39,6 +39,8 @@ Singleton {
     readonly property real bgAlphaBottom: 0.7
     readonly property color bgTop:    Qt.rgba(bgBase.r, bgBase.g, bgBase.b, bgAlphaTop)
     readonly property color bgBottom: Qt.rgba(bgBase.r, bgBase.g, bgBase.b, bgAlphaBottom)
+    readonly property color popupBg:     Qt.rgba(bgBase.r, bgBase.g, bgBase.b, 0.95)
+    readonly property int   popupRadius: 6
     
     // --- Tags ---
     readonly property int tagSize:        18   // Kantenlänge der Kästchen
