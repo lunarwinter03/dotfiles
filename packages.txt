@@ -8,6 +8,7 @@ neovim
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
+eza
 
 # ===== Terminal und Schriften =====
 kitty
