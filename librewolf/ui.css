@@ -3,6 +3,25 @@
 
 /* Nur das Browserfenster, keine Webseiten */
 @-moz-document url-prefix("chrome://browser/") {
+    
+    /* ===== Transparenz (0 = durchsichtig, 1 = deckend) ===== */
+  :root {
+    --dot-ui-opacity:      0.75;  /* Rahmen, Tab-Seitenleiste, Navigationsleiste */
+    --dot-field-opacity:   1;     /* Adressleiste */
+    --dot-content-opacity: 0.8;   /* Webseiten (zum Testen, sonst 1) */
+  }
+
+  /* Webseiten: die ganze Seite anteilig durchsichtig */
+  .browserStack > browser {
+    opacity: var(--dot-content-opacity) !important;
+  }
+
+  /* Hinter den Webseiten nichts Deckendes zeichnen, sonst sieht man dort keinen Effekt */
+  #tabbrowser-tabpanels,
+  #tabbrowser-tabbox {
+    --tabpanel-background-color: transparent !important;
+    background-color: transparent !important;
+  }
 
   /* Firefox-eigene Rundungs-Variablen auf 0 */
   :root {
