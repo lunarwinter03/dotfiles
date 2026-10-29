@@ -1,0 +1,28 @@
+/* Form der LibreWolf-Oberfläche (Original: ~/dotfiles/librewolf/ui.css)
+   Wird live nachgeladen: speichern genügt. */
+
+/* Nur das Browserfenster, keine Webseiten */
+@-moz-document url-prefix("chrome://browser/") {
+
+  /* Firefox-eigene Rundungs-Variablen auf 0 */
+  :root {
+    --border-radius-small:          0 !important;
+    --border-radius-medium:         0 !important;
+    --border-radius-large:          0 !important;
+    --border-radius-circle:         0 !important;
+    --tab-border-radius:            0 !important;
+    --toolbarbutton-border-radius:  0 !important;
+    --arrowpanel-border-radius:     0 !important;
+    --urlbar-icon-border-radius:    0 !important;
+  }
+
+  /* Lesezeichenleiste nur anzeigen, wenn sie Lesezeichen enthält */
+  #PersonalToolbar:has(#personal-toolbar-empty:not([hidden])) {
+    visibility: collapse !important;
+  }
+
+  /* Alles andere ebenfalls eckig */
+  * {
+    border-radius: 0 !important;
+  }
+}
