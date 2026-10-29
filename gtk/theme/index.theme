@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=adw-gtk3-matugen
+Comment=adw-gtk3-dark mit Farben aus matugen (dotfiles)
+
+[X-GNOME-Metatheme]
+GtkTheme=adw-gtk3-matugen

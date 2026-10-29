@@ -1,0 +1,9 @@
+/* Theme adw-gtk3-matugen (Original: ~/dotfiles/gtk/theme/)
+   adw-gtk3-dark als Grundlage, darüber die Farben aus matugen.
+   Wird bei jedem Theme-Wechsel neu gelesen, daher live. */
+
+@import url("file:///usr/share/themes/adw-gtk3-dark/gtk-3.0/gtk.css");
+
+/* ~/.local/state/theme/gtk-colors.css, relativ zu
+   ~/.local/share/themes/adw-gtk3-matugen/gtk-3.0/ */
+@import url("../../../../state/theme/gtk-colors.css");

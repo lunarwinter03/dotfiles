@@ -24,6 +24,7 @@ fuzzel
 dunst
 xdg-desktop-portal-gtk
 xdg-desktop-portal-wlr
+adw-gtk-theme
 ly
 
 # ===== Werkzeuge für Tastenkürzel und Leiste =====

@@ -12,6 +12,12 @@ cyan    = { color = "#45b5c4", blend = true }
 command = "awww img --transition-type fade --transition-pos center --transition-duration 2.5 --transition-fps 144 {{ image }}"
 set       = true
 
+[templates.gtk-colors]
+input_path  = '~/dotfiles/theme/templates/gtk-colors.css'
+output_path = '~/.local/state/theme/gtk-colors.css'
+# Laufende GTK3-Programme zum Neuladen bringen: Theme kurz umstellen und zurück
+post_hook   = 'gsettings set org.gnome.desktop.interface gtk-theme Adwaita && gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-matugen || true'
+
 [templates.kitty]
 input_path  = '~/dotfiles/theme/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors.conf'
@@ -30,3 +36,7 @@ post_hook   = 'mmsg dispatch reload_config 2>/dev/null || true'
 [templates.colors-json]
 input_path  = '~/dotfiles/theme/templates/colors.json'
 output_path = '~/.local/state/theme/colors.json'
+
+[templates.librewolf]
+input_path  = '~/dotfiles/theme/templates/librewolf.css'
+output_path = '~/.local/state/theme/librewolf.css'

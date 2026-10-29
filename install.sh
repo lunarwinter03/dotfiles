@@ -129,6 +129,48 @@ remove_overrides() {
   fi
 }
 
+# LibreWolf: AutoConfig-Sandbox abschalten (Datei gehört keinem Paket,
+# übersteht also Updates)
+setup_librewolf() {
+  info "LibreWolf"
+  local dir=/usr/lib/librewolf/defaults/pref
+  local src="$DOTFILES/librewolf/dotfiles.js"
+  local target="$dir/dotfiles.js"
+
+  if [[ ! -d "$dir" ]]; then
+    printf '   --   LibreWolf nicht installiert, übersprungen\n'
+    return
+  fi
+  if cmp -s "$src" "$target"; then
+    printf '   ok   %s\n' "$target"
+  else
+    run sudo install -m 644 "$src" "$target"
+    printf '   neu  %s\n' "$target"
+  fi
+}
+
+# GTK: Theme und Dunkelmodus (werden in dconf gespeichert, nicht in einer Datei)
+setup_gtk() {
+  info "GTK"
+  if ! command -v gsettings >/dev/null; then
+    printf '   --   gsettings nicht vorhanden, übersprungen\n'
+    return
+  fi
+  local current
+  current=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null || true)
+  if [[ "$current" == "'adw-gtk3-matugen'" ]]; then
+    printf '   ok   gtk-theme\n'
+  else
+    run gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-matugen'
+  fi
+  current=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null || true)
+  if [[ "$current" == "'prefer-dark'" ]]; then
+    printf '   ok   color-scheme\n'
+  else
+    run gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+  fi
+}
+
 set_shell() {
   info "Login-Shell"
   local current
@@ -163,6 +205,8 @@ main() {
   link_files
   link_host
   remove_overrides
+  setup_librewolf
+  setup_gtk
   set_shell
   init_theme
 

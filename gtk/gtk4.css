@@ -1,0 +1,6 @@
+/* GTK4/libadwaita (Original: ~/dotfiles/gtk/gtk4.css)
+   libadwaita ignoriert Themes, daher hier direkt Farben und Formen.
+   Wird nur beim Programmstart gelesen. */
+
+@import url("../../.local/state/theme/gtk-colors.css");
+@import url("shape.css");

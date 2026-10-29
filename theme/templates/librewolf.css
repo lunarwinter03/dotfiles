@@ -1,0 +1,81 @@
+/* GENERIERT von matugen – nicht von Hand bearbeiten!
+   Quelle: ~/dotfiles/theme/templates/librewolf.css */
+
+@-moz-document url-prefix("chrome://browser/") {
+
+  /* ===== Unsere Farben (Firefox überschreibt diese Namen nirgends) ===== */
+  :root {
+    --dot-bg:                {{colors.surface.default.hex}};
+    --dot-bg-high:           {{colors.surface_container_high.default.hex}};
+    --dot-fg:                {{colors.on_surface.default.hex}};
+    --dot-fg-dim:            {{colors.on_surface_variant.default.hex}};
+    --dot-accent:            {{colors.primary.default.hex}};
+    --dot-on-accent:         {{colors.on_primary.default.hex}};
+    --dot-accent-container:  {{colors.primary_container.default.hex}};
+    --dot-on-accent-container: {{colors.on_primary_container.default.hex}};
+    --dot-border:            {{colors.outline_variant.default.hex}};
+
+    /* Firefox' eigene Variablen, wo sie global gelten (z.B. Fokus-Rahmen) */
+    --toolbar-field-focus-border-color: var(--dot-accent) !important;
+    --focus-outline-color:              var(--dot-accent) !important;
+    --arrowpanel-background:            var(--dot-bg-high) !important;
+    --arrowpanel-color:                 var(--dot-fg) !important;
+    --arrowpanel-border-color:          var(--dot-border) !important;
+  }
+
+  /* ===== Oberfläche: Leisten oben und Tab-Seitenleiste ===== */
+  /* Nur diese Bereiche tragen die Farbe. Sie überlappen sich nicht,
+     und hinter den Webseiten liegt nichts Deckendes. */
+  body {
+    background-color: transparent !important;
+    color: var(--dot-fg) !important;
+  }
+  #navigator-toolbox,
+  #sidebar-main,
+  #sidebar-box {
+    background-color: rgb(from var(--dot-bg) r g b / var(--dot-ui-opacity, 1)) !important;
+    color: var(--dot-fg) !important;
+  }
+  #navigator-toolbox {
+    --toolbarbutton-icon-fill: var(--dot-fg) !important;
+  }
+
+  /* ===== Navigations- und Lesezeichenleiste ===== */
+  #nav-bar,
+  #PersonalToolbar {
+    background-color: transparent !important;
+    color: var(--dot-fg) !important;
+  }
+
+  /* ===== Tabs ===== */
+  .tabbrowser-tab,
+  .tab-label,
+  .tab-content {
+    color: var(--dot-fg) !important;
+  }
+  .tab-background:is([selected], [multiselected]) {
+    background-color: rgb(from var(--dot-bg-high) r g b / var(--dot-ui-opacity, 1)) !important;
+  }
+
+  /* ===== Adressleiste ===== */
+  .urlbar-background,
+  #urlbar:is([focused], [open]) .urlbar-background {
+    background-color: rgb(from var(--dot-bg) r g b / var(--dot-field-opacity, 1)) !important;
+  }
+  #urlbar:is([focused], [open]) .urlbar-background {
+    outline: 1px solid var(--dot-accent) !important;
+  }
+  #urlbar,
+  .urlbar-input {
+    color: var(--dot-fg) !important;
+  }
+  .urlbar-input::placeholder {
+    color: var(--dot-fg-dim) !important;
+    opacity: 1 !important;
+  }
+  /* Markierter Vorschlag in der aufgeklappten Liste */
+  #urlbar {
+    --urlbarView-highlight-background: var(--dot-accent-container) !important;
+    --urlbarView-highlight-color:      var(--dot-on-accent-container) !important;
+  }
+}
