@@ -110,6 +110,25 @@ link_host() {
   link "$file" "$HOME/.config/mango/host.conf"
 }
 
+# Dateien, die unsere Configs unbemerkt überschreiben würden, beiseiteräumen
+remove_overrides() {
+  info "Störende Überbleibsel"
+  local f found=0
+  for f in "$HOME"/.config/kitty/{dark,light,no-preference}-theme.auto.conf \
+           "$HOME/.config/xdg-desktop-portal/portals.conf"; do
+    if [[ -e "$f" ]]; then
+      found=1
+      local rel="${f#"$HOME"/}"
+      run mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
+      run mv "$f" "$BACKUP_DIR/$rel"
+      warn "gesichert und entfernt: $f"
+    fi
+  done
+  if (( ! found )); then
+    printf '   ok   nichts gefunden\n'
+  fi
+}
+
 set_shell() {
   info "Login-Shell"
   local current
@@ -143,6 +162,7 @@ main() {
   install_packages
   link_files
   link_host
+  remove_overrides
   set_shell
   init_theme
 
