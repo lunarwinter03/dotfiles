@@ -5,3 +5,4 @@ theme/ansi.conf                    ~/.config/kitty/ansi.conf
 theme/matugen.toml                 ~/.config/matugen/config.toml
 mango/config.conf                  ~/.config/mango/config.conf
 quickshell                         ~/.config/quickshell
+nvim                               ~/.config/nvim
