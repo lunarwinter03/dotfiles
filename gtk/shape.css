@@ -1,0 +1,25 @@
+/* Formen für GTK3 und GTK4 (Original: ~/dotfiles/gtk/shape.css)
+   Grundsatz: alles eckig, Ausnahmen darunter. */
+
+* {
+  border-radius: 0;
+}
+
+/* ===== Ausnahmen: bleiben rund ===== */
+radio {
+  border-radius: 50%;
+}
+switch,
+switch slider {
+  border-radius: 50%;
+}
+
+/* ===== Weitere mögliche Ausnahmen, zum Rundlassen einkommentieren ===== */
+/* Knopf auf Schiebereglern */
+scale slider { border-radius: 50%; }
+
+/* Runde Symbolknöpfe, z.B. Schließen in der Titelleiste */
+/* button.circular { border-radius: 9999px; } */
+
+/* Checkboxen leicht abgerundet */
+/* check { border-radius: 3px; } */
