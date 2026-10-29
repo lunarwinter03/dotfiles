@@ -34,4 +34,4 @@ wireplumber                    # stellt wpctl bereit
 wlr-randr                      # Monitornamen und -modi ermitteln
 
 # ===== Programme =====
-
+librewolf

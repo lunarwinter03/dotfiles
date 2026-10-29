@@ -100,7 +100,7 @@ PanelWindow {
 
     // ===== Feste Fenstergröße, sichtbar ist nur der Kasten =====
     color: "transparent"
-    implicitWidth: 320
+    implicitWidth: 370
     implicitHeight: Config.networkPopupMaxHeight + 100
     mask: Region { item: content }
 

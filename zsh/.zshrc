@@ -23,7 +23,7 @@ if [[ -r ~/.dircolors ]]; then
 else
   eval "$(dircolors)"
 fi
-alias ls='ls --color=auto'
+# alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 
 # ===== Vervollständigung =====
@@ -73,9 +73,13 @@ alias zedit="nvim ~/dotfiles/zsh/.zshrc"
 alias themedit="nvim ~/dotfiles/theme/ansi.conf"
 alias colors='for i in {0..15}; do print -Pn "%K{$i}  $(printf %2d $i)  %k"; ((i==7)) && echo; done; echo;for i in {0..15}; do print -Pn "%F{$i}██ $(printf %2d $i)%f  "; ((i==7)) && echo; done; echo'
 alias qsr='pkill -x qs; pkill -x quickshell; setsid qs >/dev/null 2>&1 &'
+# ls
+alias ls="eza --group-directories-first --icons always"
+alias la="eza --group-directories-first --icons always --all --long"
+alias lat="eza --group-directories-first --icons always --all --tree --long --no-filesize --no-user --no-time --level "
 
 # ===== Plugins (müssen am Ende stehen) =====
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=16'
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 
 for plugin in \
   /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
@@ -86,5 +90,5 @@ done
 
 ZSH_HIGHLIGHT_STYLES[alias]=fg=blue,bold
 ZSH_HIGHLIGHT_STYLES[builtin]=fg=blue,bold
-ZSH_HIGHLIGHT_STYLES[function]=fg=blue,bold
+ZSH_HIGHLIGHT_STYLES[function]=fg=green,bold
 ZSH_HIGHLIGHT_STYLES[command]=fg=white,bold

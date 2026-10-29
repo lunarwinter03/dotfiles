@@ -71,7 +71,7 @@ Singleton {
 
     // ===== Wallpaper-Picker =====
     readonly property string pickerFolder:       "Pictures/Wallpapers"  // relativ zu ~
-    readonly property string pickerOrientation:  "horizontal"           // oder "vertical"
+    readonly property string pickerOrientation:  "vertical"           // oder "vertical"
     readonly property int    pickerThumbWidth:   240                    // Breite einer Vorschau (px)
     readonly property int    pickerMaxVisible:   5                      // höchstens so viele gleichzeitig
     readonly property bool   pickerCloseOnApply: true                   // nach Auswahl schließen
