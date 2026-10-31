@@ -1,4 +1,4 @@
-# ~/.zshrc  (Original: ~/dotfiles/zsh/.zshrc)
+# ~/.zshrc
 
 # Eigene Befehle (dot, theme-apply, …)
 path=("$HOME/.local/bin" $path)

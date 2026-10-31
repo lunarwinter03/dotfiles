@@ -1,13 +1,23 @@
-# Einrichtung für das Modul base (wird von dot aufgerufen)
-
 setup() {
-  info "base: Login-Shell"
+  info "base: login shell"
   local current
   current="$(getent passwd "$USER" | cut -d: -f7)"
   if [[ "$current" == "/usr/bin/zsh" ]]; then
-    item ok "zsh ist Login-Shell"
+    item ok "zsh"
     return
   fi
   state_remember shell "$current"
   run chsh -s /usr/bin/zsh
+}
+
+teardown() {
+  info "base: login shell"
+  local previous
+  previous="$(state_value shell)"
+  if [[ -z "$previous" ]]; then
+    item ok "unchanged by dot"
+    return
+  fi
+  run chsh -s "$previous"
+  item restored "$previous"
 }
