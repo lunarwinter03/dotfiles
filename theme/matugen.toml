@@ -28,6 +28,11 @@ input_path  = '~/dotfiles/theme/templates/kitty-ansi.conf'
 output_path = '~/.config/kitty/ansi-matugen.conf'
 post_hook   = 'pkill -USR1 kitty || true'
 
+[templates.kitty-fonts]
+input_path  = '~/dotfiles/theme/templates/kitty-fonts.conf'
+output_path = '~/.config/kitty/fonts.conf'
+post_hook   = 'pkill -USR1 kitty || true'
+
 [templates.mango]
 input_path  = '~/dotfiles/theme/templates/mango-colors.conf'
 output_path = '~/.config/mango/colors.conf'
@@ -42,5 +47,9 @@ input_path  = '~/dotfiles/theme/templates/librewolf.css'
 output_path = '~/.local/state/theme/librewolf.css'
 
 [templates.fuzzel]
-input_path  = '~/dotfiles/theme/templates/fuzzel-colors.ini'
-output_path = '~/.local/state/theme/fuzzel-colors.ini'
+input_path  = '~/dotfiles/theme/templates/fuzzel-theme.ini'
+output_path = '~/.local/state/theme/fuzzel-theme.ini'
+
+[templates.fontconfig]
+input_path  = '~/dotfiles/theme/templates/fontconfig.conf'
+output_path = '~/.config/fontconfig/fonts.conf'

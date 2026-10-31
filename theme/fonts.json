@@ -1,0 +1,20 @@
+{
+  "fonts": {
+    "family": {
+      "sans":  "Adwaita Sans",
+      "serif": "Noto Serif",
+      "mono":  "Adwaita Mono",
+      "icons": "Symbols Nerd Font Mono"
+    },
+    "size": {
+      "ui":       11,
+      "terminal": 11
+    },
+    "bar": {
+      "small":  10,
+      "medium": 12,
+      "large":  15,
+      "icon":   13
+    }
+  }
+}

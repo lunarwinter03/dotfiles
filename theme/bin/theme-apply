@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Einstiegspunkt für matugen: hängt die Regler aus ansi.json an
-# und merkt sich das Schema für ansi-tune.
+# Einstiegspunkt für matugen: hängt ansi.json und fonts.json an,
+# merkt sich das Schema für ansi-tune und setzt die GTK-Schriften.
 #
 # Aufruf wie matugen selbst, z.B.:
 #   theme-apply image ~/Pictures/Wallpapers/x.png -m dark -t scheme-vibrant
@@ -9,6 +9,7 @@ set -euo pipefail
 
 STATE="$HOME/.local/state/theme"
 SETTINGS="$HOME/dotfiles/theme/ansi.json"
+FONTS="$HOME/dotfiles/theme/fonts.json"
 
 # Schema (-t <name>) aus den Argumenten merken
 args=("$@")
@@ -19,4 +20,17 @@ for ((i = 0; i < ${#args[@]} - 1; i++)); do
   fi
 done
 
-exec matugen "$@" --import-json "$SETTINGS"
+matugen "$@" --import-json "$SETTINGS" --import-json "$FONTS"
+
+# GTK-Schriften (gsettings), nur setzen, wenn sie sich unterscheiden
+gset() {
+  local key="$1" value="$2"
+  if [[ "$(gsettings get org.gnome.desktop.interface "$key" 2>/dev/null)" != "'$value'" ]]; then
+    gsettings set org.gnome.desktop.interface "$key" "$value" || true
+  fi
+}
+if command -v gsettings >/dev/null; then
+  size=$(jq -r '.fonts.size.ui' "$FONTS")
+  gset font-name           "$(jq -r '.fonts.family.sans' "$FONTS") $size"
+  gset monospace-font-name "$(jq -r '.fonts.family.mono' "$FONTS") $size"
+fi

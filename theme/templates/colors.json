@@ -6,5 +6,13 @@
   "tertiary":           "{{colors.tertiary.default.hex}}",
   "outline_variant":    "{{colors.outline_variant.default.hex}}",
   "error":              "{{colors.error.default.hex}}",
-  "source_color":	"{{colors.source_color.default.hex}}"
+  "source_color":       "{{colors.source_color.default.hex}}",
+
+  "font_sans":          "{{fonts.family.sans}}",
+  "font_mono":          "{{fonts.family.mono}}",
+  "font_icons":         "{{fonts.family.icons}}",
+  "font_small":         {{fonts.bar.small}},
+  "font_medium":        {{fonts.bar.medium}},
+  "font_large":         {{fonts.bar.large}},
+  "font_icon":          {{fonts.bar.icon}}
 }
