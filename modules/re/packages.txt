@@ -9,3 +9,4 @@ ltrace
 patchelf
 hexyl
 upx
+firejail

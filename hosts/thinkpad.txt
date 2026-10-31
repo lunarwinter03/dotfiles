@@ -1,1 +1,3 @@
-base desktop offsec
+base
+desktop
+offsec
