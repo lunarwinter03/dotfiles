@@ -70,7 +70,7 @@ Singleton {
     readonly property string iconCollapse: String.fromCodePoint(0xF0143)
 
     // ===== Wallpaper-Picker =====
-    readonly property string pickerFolder:       "Pictures/Wallpapers"  // relativ zu ~
+    readonly property var    pickerFolders:      ["Pictures/Wallpapers", ".local/share/wallpapers"]  // relative to ~
     readonly property string pickerOrientation:  "vertical"           // oder "vertical"
     readonly property int    pickerThumbWidth:   240                    // Breite einer Vorschau (px)
     readonly property int    pickerMaxVisible:   5                      // höchstens so viele gleichzeitig

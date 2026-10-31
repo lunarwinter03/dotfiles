@@ -286,7 +286,9 @@ cmd_apply() {
   if (( ${#asdeps[@]} ));  then item explicit "${asdeps[*]}"; fi
   for i in "${!l_dst[@]}"; do item "${l_state[i]}" "${l_dst[i]}"; done
   item ok "$n_ok links already correct"
-  item setup "${MODULES[*]}"
+  for m in "${MODULES[@]}"; do
+    ( DRY_RUN=1; run_hook "$m" setup ) 2>&1 | sed 's/^/  /'
+  done
 
   if ! confirm; then info "Aborted."; return 0; fi
   if (( DRY_RUN )); then info "DRY RUN: nothing will be changed"; fi
@@ -328,7 +330,9 @@ cmd_apply() {
 undo() {
   local m dst src p
   info "Plan"
-  item teardown "${U_MODULES[*]:-none}"
+  for m in "${U_MODULES[@]}"; do
+    ( DRY_RUN=1; run_hook "$m" teardown ) 2>&1 | sed 's/^/  /'
+  done
   for dst in "${U_LINKS[@]}"; do item unlink "$dst"; done
   if (( ${#U_PKGS[@]} )); then item remove "${U_PKGS[*]}"; fi
   if (( ${#U_DEPS[@]} )); then item demote "${U_DEPS[*]}"; fi

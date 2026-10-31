@@ -1,5 +1,4 @@
 import QtQuick
-import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -12,7 +11,6 @@ PanelWindow {
     screen: targetScreen
     visible: Popups.wallpaper === targetScreen.name
 
-    // ===== Maße =====
     readonly property bool vertical: Config.pickerOrientation === "vertical"
     readonly property int thumbW: Config.pickerThumbWidth
     readonly property int thumbH: Math.round(thumbW * 9 / 16)
@@ -22,7 +20,7 @@ PanelWindow {
         vertical ? Math.floor(targetScreen.height * 0.9 / cellH)
                  : Math.floor(targetScreen.width  * 0.9 / cellW)))
 
-    // ===== Position: horizontal unten mittig, vertikal rechts mittig =====
+    // Horizontal: bottom centre. Vertical: right centre.
     anchors.bottom: !vertical
     anchors.right:  vertical
     margins.bottom: vertical ? 0 : 24
@@ -37,7 +35,7 @@ PanelWindow {
     implicitWidth: box.width
     implicitHeight: box.height
 
-    // ===== Schema =====
+    // ===== Scheme =====
     property int schemeIndex: Math.max(0, Config.pickerSchemes.indexOf(Config.pickerDefaultScheme))
     readonly property string scheme: Config.pickerSchemes[schemeIndex]
 
@@ -46,22 +44,18 @@ PanelWindow {
         schemeIndex = (schemeIndex + delta + n) % n
     }
 
-    // ===== Quellfarben des aktuellen Bildes =====
-    property var sourceColors: []      // z.B. ["#db79a9", "#adc264", ...]
+    // ===== Source colours =====
+    property var sourceColors: []
     property int sourceIndex: 0
-    property var colorCache: ({})      // Pfad -> Farbliste
-    property string currentWallpaper: ""   // Bild, das gerade auf diesem Monitor angezeigt wird
+    property var colorCache: ({})          // path -> colours
+    property string currentWallpaper: ""   // image currently shown on this screen
 
-    // Beim aktuell angezeigten Bild die Quellfarbe des aktiven Themes vorwählen
+    // On the current wallpaper, preselect the source colour of the active theme
     function preferredSourceIndex(path, colors) {
         if (path !== currentWallpaper || Theme.sourceColor === "")
             return 0
         const i = colors.findIndex(c => c.toLowerCase() === Theme.sourceColor.toLowerCase())
         return i >= 0 ? i : 0
-    }
-
-    function currentPath() {
-        return folder.get(list.currentIndex, "filePath") ?? ""
     }
 
     function loadSourceColors() {
@@ -70,8 +64,8 @@ PanelWindow {
         if (path === "") {
             sourceColors = []
         } else if (colorCache[path]) {
-	    sourceColors = colorCache[path]
-	    sourceIndex = preferredSourceIndex(path, sourceColors)
+            sourceColors = colorCache[path]
+            sourceIndex = preferredSourceIndex(path, sourceColors)
         } else {
             sourceColors = []
             colorProc.path = path
@@ -85,7 +79,7 @@ PanelWindow {
             sourceIndex = (sourceIndex + delta + n) % n
     }
 
-    // Erst abfragen, wenn man kurz auf einem Bild stehen bleibt
+    // Only query once the selection rests for a moment
     Timer {
         id: colorDelay
         interval: 150
@@ -102,22 +96,67 @@ PanelWindow {
                     .map(s => s.trim())
                     .filter(s => /^#[0-9a-fA-F]{6}$/.test(s))
                 picker.colorCache[colorProc.path] = colors
-                // Nur übernehmen, wenn das Bild inzwischen nicht gewechselt wurde
+                // Ignore the result if the selection moved on meanwhile
                 if (colorProc.path === picker.currentPath()) {
                     picker.sourceColors = colors
                     picker.sourceIndex = picker.preferredSourceIndex(colorProc.path, colors)
-		}
-	    }
+                }
+            }
         }
     }
 
-    // ===== Aktuelles Wallpaper beim Öffnen anspringen =====
+    // ===== Images =====
+    ListModel {
+        id: folder
+    }
+
+    function pathAt(i) {
+        return (i >= 0 && i < folder.count) ? folder.get(i).filePath : ""
+    }
+
+    function nameAt(i) {
+        return (i >= 0 && i < folder.count) ? folder.get(i).fileName : ""
+    }
+
+    function currentPath() {
+        return pathAt(list.currentIndex)
+    }
+
+    // -H: picker folders may be symlinks, e.g. into the dotfiles repo
+    Process {
+        id: scanProc
+        command: ["find", "-H"]
+            .concat(Config.pickerFolders.map(d => Quickshell.env("HOME") + "/" + d))
+            .concat(["-maxdepth", "1", "-type", "f",
+                     "(", "-iname", "*.jpg", "-o", "-iname", "*.jpeg",
+                     "-o", "-iname", "*.png", "-o", "-iname", "*.webp", ")"])
+        stdout: StdioCollector {
+            onStreamFinished: picker.fillModel(text)
+        }
+    }
+
+    function fillModel(output) {
+        const items = output.split("\n")
+            .filter(p => p !== "")
+            .map(p => ({ fileName: p.substring(p.lastIndexOf("/") + 1), filePath: p }))
+        items.sort((a, b) => {
+            const x = a.fileName.toLowerCase()
+            const y = b.fileName.toLowerCase()
+            return x < y ? -1 : (x > y ? 1 : 0)
+        })
+        folder.clear()
+        for (const item of items)
+            folder.append(item)
+        loadSourceColors()
+        currentProc.running = true
+    }
+
+    // Line format: ": DP-1: 1920x1080, ..., currently displaying: image: /path"
     Process {
         id: currentProc
         command: ["awww", "query"]
         stdout: StdioCollector {
             onStreamFinished: {
-                // Zeilenformat: ": DP-1: 1920x1080, ..., currently displaying: image: /pfad"
                 for (const line of text.split("\n")) {
                     const m = line.match(/^\s*:?\s*([^:\s]+):.*image:\s*(.+)$/)
                     if (m && m[1] === picker.targetScreen.name) {
@@ -125,15 +164,15 @@ PanelWindow {
                         picker.selectPath(picker.currentWallpaper)
                         picker.loadSourceColors()
                         return
-		    }
-		}
+                    }
+                }
             }
         }
     }
 
     function selectPath(path) {
         for (let i = 0; i < folder.count; i++) {
-            if (folder.get(i, "filePath") === path) {
+            if (pathAt(i) === path) {
                 list.currentIndex = i
                 list.positionViewAtIndex(i, ListView.Center)
                 return
@@ -141,7 +180,7 @@ PanelWindow {
         }
     }
 
-    // ===== Blättern und Anwenden =====
+    // ===== Navigation and apply =====
     function step(delta) {
         const n = list.count
         if (n > 0)
@@ -149,39 +188,28 @@ PanelWindow {
     }
 
     function apply(index) {
-        const path = folder.get(index, "filePath")
+        const path = pathAt(index)
         if (!path)
             return
-        // Quellfarbe nur übernehmen, wenn sie zu genau diesem Bild gehört
+        // The source colour belongs to the selected image only
         const src = (index === list.currentIndex) ? picker.sourceIndex : 0
         Quickshell.execDetached([Quickshell.env("HOME") + "/.local/bin/theme-apply",
                                  "image", path,
                                  "-m", "dark",
                                  "-t", picker.scheme,
-				 "--source-color-index", String(src)])
-	if (Config.pickerCloseOnApply)
+                                 "--source-color-index", String(src)])
+        if (Config.pickerCloseOnApply)
             Popups.closeAll()
     }
 
     onVisibleChanged: {
         if (visible) {
             list.forceActiveFocus()
-            currentProc.running = true
-            loadSourceColors()
+            scanProc.running = true
         }
     }
 
-    // ===== Bilder aus dem Ordner =====
-    FolderListModel {
-        id: folder
-        folder: "file://" + Quickshell.env("HOME") + "/" + Config.pickerFolder
-        nameFilters: ["*.jpg", "*.jpeg", "*.png", "*.webp"]
-        caseSensitive: false
-        showDirs: false
-        sortField: FolderListModel.Name
-    }
-
-    // ===== Sichtbarer Kasten =====
+    // ===== Box =====
     Rectangle {
         id: box
         width:  (picker.vertical ? picker.cellW : picker.cellW * picker.visibleCount) + 20
@@ -191,7 +219,6 @@ PanelWindow {
         border.width: 1
         border.color: Theme.outlineVariant
 
-        // ===== Karussell =====
         ListView {
             id: list
             x: 10
@@ -215,7 +242,6 @@ PanelWindow {
                 id: entry
                 required property int index
                 required property string filePath
-                required property url fileUrl
                 readonly property bool current: ListView.isCurrentItem
 
                 width: picker.cellW
@@ -233,7 +259,8 @@ PanelWindow {
 
                     Image {
                         anchors.fill: parent
-                        source: entry.fileUrl
+                        // Encode each segment so names with spaces, # or % still load
+                        source: "file://" + entry.filePath.split("/").map(encodeURIComponent).join("/")
                         sourceSize.width: picker.thumbW * 2
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
@@ -259,7 +286,7 @@ PanelWindow {
                 }
             }
 
-            // ===== Tastatur =====
+            // Horizontal: a/d image, w/s scheme. Vertical: swapped. q/e source colour.
             Keys.onPressed: event => {
                 const k = event.key
                 const prev    = picker.vertical ? [Qt.Key_W, Qt.Key_Up]    : [Qt.Key_A, Qt.Key_Left]
@@ -282,7 +309,6 @@ PanelWindow {
             }
         }
 
-        // ===== Quellfarben =====
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: label.top
@@ -317,7 +343,6 @@ PanelWindow {
             }
         }
 
-        // ===== Dateiname und Schema =====
         Text {
             id: label
             anchors.horizontalCenter: parent.horizontalCenter
@@ -326,10 +351,7 @@ PanelWindow {
             width: parent.width - 20
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideMiddle
-            text: list.count === 0
-                ? "Keine Bilder in ~/" + Config.pickerFolder
-                : (folder.get(list.currentIndex, "fileName") ?? "")
-                  + "   ◂ " + picker.scheme.replace("scheme-", "") + " ▸"
+            text: "   ◂ " + picker.scheme.replace("scheme-", "") + " ▸"
             color: Theme.fgDim
             font.pixelSize: Theme.fontSmall
         }

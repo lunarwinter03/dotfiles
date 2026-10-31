@@ -12,15 +12,26 @@ setup() {
   fi
 
   info "offsec: seclists"
-  if [[ -d "$SECLISTS_DIR/.git" ]]; then
-    run git -C "$SECLISTS_DIR" sparse-checkout set --no-cone '/*/'
-    run git -C "$SECLISTS_DIR" pull --ff-only --quiet
-    item updated "$SECLISTS_DIR"
-  else
+  if [[ ! -d "$SECLISTS_DIR/.git" ]]; then
     run git clone --depth 1 "$SECLISTS_URL" "$SECLISTS_DIR"
     run git -C "$SECLISTS_DIR" sparse-checkout set --no-cone '/*/'
     item new "$SECLISTS_DIR"
+    return
   fi
+  run git -C "$SECLISTS_DIR" sparse-checkout set --no-cone '/*/'
+  if (( DRY_RUN )); then
+    item check "$SECLISTS_DIR for updates"
+    return
+  fi
+  local before after
+  before="$(git -C "$SECLISTS_DIR" rev-parse HEAD)"
+  git -C "$SECLISTS_DIR" pull --ff-only --quiet
+  after="$(git -C "$SECLISTS_DIR" rev-parse HEAD)"
+  if [[ "$before" == "$after" ]]; then
+    item ok "up to date"
+  else
+    item updated "$SECLISTS_DIR"
+  fi 
 }
 
 teardown() {

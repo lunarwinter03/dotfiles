@@ -11,6 +11,8 @@ theme/fonts.json                      ~/.config/matugen/fonts.json
 theme/bin/theme-apply                 ~/.local/bin/theme-apply
 theme/bin/ansi-tune                   ~/.local/bin/ansi-tune
 
+wallpapers                            ~/.local/share/wallpapers
+
 mango/config.conf                     ~/.config/mango/config.conf
 mango/scripts                         ~/.config/mango/scripts
 mango/hosts/{host}.conf               ~/.config/mango/host.conf
