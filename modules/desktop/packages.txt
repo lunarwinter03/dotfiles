@@ -1,0 +1,30 @@
+# Modul desktop: grafische Oberfläche mit Theme
+
+# Terminal und Schriften
+kitty
+adwaita-fonts
+noto-fonts
+ttf-nerd-fonts-symbols-mono
+
+# Desktop
+mangowm
+quickshell
+awww
+matugen
+fuzzel
+dunst
+xdg-desktop-portal-gtk
+xdg-desktop-portal-wlr
+adw-gtk-theme
+ly
+
+# Werkzeuge für Tastenkürzel und Leiste
+grim
+slurp
+wl-clipboard
+playerctl
+wireplumber                    # stellt wpctl bereit
+wlr-randr
+
+# Programme
+librewolf

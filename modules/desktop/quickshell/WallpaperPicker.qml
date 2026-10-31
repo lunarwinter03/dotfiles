@@ -154,7 +154,7 @@ PanelWindow {
             return
         // Quellfarbe nur übernehmen, wenn sie zu genau diesem Bild gehört
         const src = (index === list.currentIndex) ? picker.sourceIndex : 0
-        Quickshell.execDetached([Quickshell.env("HOME") + "/dotfiles/theme/bin/theme-apply",
+        Quickshell.execDetached([Quickshell.env("HOME") + "/.local/bin/theme-apply",
                                  "image", path,
                                  "-m", "dark",
                                  "-t", picker.scheme,

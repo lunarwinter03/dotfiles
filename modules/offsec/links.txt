@@ -1,0 +1,1 @@
+zsh.zsh    ~/.config/zsh/conf.d/offsec.zsh

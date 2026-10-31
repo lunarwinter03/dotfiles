@@ -1,0 +1,4 @@
+# Quelle (relativ zum Modul)   Ziel
+../../dot                      ~/.local/bin/dot
+zsh/.zshrc                     ~/.zshrc
+nvim                           ~/.config/nvim

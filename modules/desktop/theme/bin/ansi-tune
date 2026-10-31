@@ -8,7 +8,7 @@
 set -euo pipefail
 
 BIN="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SETTINGS="$HOME/dotfiles/theme/ansi.json"
+SETTINGS="$HOME/.config/matugen/ansi.json"
 STATE="$HOME/.local/state/theme"
 
 show() {
@@ -62,7 +62,7 @@ jq --arg s "$sem" --arg o "$other" --arg l "$light" '
   | if $o != "" then .ansi.blend_other = ($o | tonumber) else . end
   | if $l != "" then .ansi.lighten     = ($l | tonumber) else . end
 ' "$SETTINGS" > "$tmp"
-mv "$tmp" "$SETTINGS"
+mv "$tmp" "$(readlink -f "$SETTINGS")"
 
 # Mit gleicher Quellfarbe und gleichem Schema neu anwenden
 "$BIN/theme-apply" color hex "$source_color" -m dark -t "$scheme" > /dev/null

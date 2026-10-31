@@ -1,0 +1,10 @@
+# Modul base: was jeder Rechner braucht
+git
+jq
+neovim
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+eza
+man-db
+man-pages

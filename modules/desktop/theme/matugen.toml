@@ -13,43 +13,43 @@ command = "awww img --transition-type fade --transition-pos center --transition-
 set       = true
 
 [templates.gtk-colors]
-input_path  = '~/dotfiles/theme/templates/gtk-colors.css'
+input_path  = '~/.config/matugen/templates/gtk-colors.css'
 output_path = '~/.local/state/theme/gtk-colors.css'
 # Laufende GTK3-Programme zum Neuladen bringen: Theme kurz umstellen und zurück
 post_hook   = 'gsettings set org.gnome.desktop.interface gtk-theme Adwaita && gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-matugen || true'
 
 [templates.kitty]
-input_path  = '~/dotfiles/theme/templates/kitty-colors.conf'
+input_path  = '~/.config/matugen/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors.conf'
 post_hook   = 'pkill -USR1 kitty || true'
 
 [templates.kitty-ansi]
-input_path  = '~/dotfiles/theme/templates/kitty-ansi.conf'
+input_path  = '~/.config/matugen/templates/kitty-ansi.conf'
 output_path = '~/.config/kitty/ansi-matugen.conf'
 post_hook   = 'pkill -USR1 kitty || true'
 
 [templates.kitty-fonts]
-input_path  = '~/dotfiles/theme/templates/kitty-fonts.conf'
+input_path  = '~/.config/matugen/templates/kitty-fonts.conf'
 output_path = '~/.config/kitty/fonts.conf'
 post_hook   = 'pkill -USR1 kitty || true'
 
 [templates.mango]
-input_path  = '~/dotfiles/theme/templates/mango-colors.conf'
+input_path  = '~/.config/matugen/templates/mango-colors.conf'
 output_path = '~/.config/mango/colors.conf'
 post_hook   = 'mmsg dispatch reload_config 2>/dev/null || true'
 
 [templates.colors-json]
-input_path  = '~/dotfiles/theme/templates/colors.json'
+input_path  = '~/.config/matugen/templates/colors.json'
 output_path = '~/.local/state/theme/colors.json'
 
 [templates.librewolf]
-input_path  = '~/dotfiles/theme/templates/librewolf.css'
+input_path  = '~/.config/matugen/templates/librewolf.css'
 output_path = '~/.local/state/theme/librewolf.css'
 
 [templates.fuzzel]
-input_path  = '~/dotfiles/theme/templates/fuzzel-theme.ini'
+input_path  = '~/.config/matugen/templates/fuzzel-theme.ini'
 output_path = '~/.local/state/theme/fuzzel-theme.ini'
 
 [templates.fontconfig]
-input_path  = '~/dotfiles/theme/templates/fontconfig.conf'
+input_path  = '~/.config/matugen/templates/fontconfig.conf'
 output_path = '~/.config/fontconfig/fonts.conf'

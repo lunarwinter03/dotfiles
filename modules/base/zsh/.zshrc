@@ -1,7 +1,7 @@
 # ~/.zshrc  (Original: ~/dotfiles/zsh/.zshrc)
 
-# Eigene Befehle aus den dotfiles
-path=("$HOME/dotfiles/theme/bin" $path)
+# Eigene Befehle (dot, theme-apply, …)
+path=("$HOME/.local/bin" $path)
 
 # ===== Prompt =====
 PROMPT='%F{magenta}%n%f@%F{blue}%m%f %F{blue}%~ %f%(!.#.$) '
@@ -69,14 +69,16 @@ bindkey '^[[F'    end-of-line          # Ende
 [[ -n "${terminfo[kdch1]}" ]] && bindkey "${terminfo[kdch1]}" delete-char
 
 # ===== Aliase =====
-alias zedit="nvim ~/dotfiles/zsh/.zshrc"
-alias themedit="nvim ~/dotfiles/theme/ansi.conf"
+alias zedit="nvim ~/.zshrc"
 alias colors='for i in {0..15}; do print -Pn "%K{$i}  $(printf %2d $i)  %k"; ((i==7)) && echo; done; echo;for i in {0..15}; do print -Pn "%F{$i}██ $(printf %2d $i)%f  "; ((i==7)) && echo; done; echo'
-alias qsr='pkill -x qs; pkill -x quickshell; setsid qs >/dev/null 2>&1 &'
 # ls
 alias ls="eza --group-directories-first --icons always"
 alias la="eza --group-directories-first --icons always --all --long"
 alias lat="eza --group-directories-first --icons always --all --tree --long --no-filesize --no-user --no-time --level "
+
+# ===== Ergänzungen der Module (von dot verlinkt) =====
+for f in ~/.config/zsh/conf.d/*.zsh(N); do source "$f"; done
+unset f
 
 # ===== Plugins (müssen am Ende stehen) =====
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'

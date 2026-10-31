@@ -8,8 +8,8 @@
 set -euo pipefail
 
 STATE="$HOME/.local/state/theme"
-SETTINGS="$HOME/dotfiles/theme/ansi.json"
-FONTS="$HOME/dotfiles/theme/fonts.json"
+SETTINGS="$HOME/.config/matugen/ansi.json"
+FONTS="$HOME/.config/matugen/fonts.json"
 
 # Schema (-t <name>) aus den Argumenten merken
 args=("$@")

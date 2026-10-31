@@ -1,0 +1,28 @@
+# Quelle (relativ zum Modul)          Ziel
+zsh.zsh                               ~/.config/zsh/conf.d/desktop.zsh
+
+kitty/kitty.conf                      ~/.config/kitty/kitty.conf
+theme/ansi.conf                       ~/.config/kitty/ansi.conf
+
+theme/matugen.toml                    ~/.config/matugen/config.toml
+theme/templates                       ~/.config/matugen/templates
+theme/ansi.json                       ~/.config/matugen/ansi.json
+theme/fonts.json                      ~/.config/matugen/fonts.json
+theme/bin/theme-apply                 ~/.local/bin/theme-apply
+theme/bin/ansi-tune                   ~/.local/bin/ansi-tune
+
+mango/config.conf                     ~/.config/mango/config.conf
+mango/scripts                         ~/.config/mango/scripts
+mango/hosts/{host}.conf               ~/.config/mango/host.conf
+
+quickshell                            ~/.config/quickshell
+
+librewolf/librewolf.overrides.cfg     ~/.config/librewolf/librewolf/librewolf.overrides.cfg
+librewolf/ui.css                      ~/.config/librewolf/librewolf/ui.css
+
+gtk/shape.css                         ~/.config/gtk-3.0/gtk.css
+gtk/gtk4.css                          ~/.config/gtk-4.0/gtk.css
+gtk/shape.css                         ~/.config/gtk-4.0/shape.css
+gtk/theme                             ~/.local/share/themes/adw-gtk3-matugen
+
+fuzzel/fuzzel.ini                     ~/.config/fuzzel/fuzzel.ini
