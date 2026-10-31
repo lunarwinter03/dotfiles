@@ -15,7 +15,6 @@ wallpapers                            ~/.local/share/wallpapers
 
 mango/config.conf                     ~/.config/mango/config.conf
 mango/scripts                         ~/.config/mango/scripts
-mango/hosts/{host}.conf               ~/.config/mango/host.conf
 
 quickshell                            ~/.config/quickshell
 
