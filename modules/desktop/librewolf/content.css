@@ -1,0 +1,12 @@
+/* Applies to all web pages, reloaded live. */
+
+/* Square corners everywhere */
+*, *::before, *::after {
+  border-radius: 0 !important;
+}
+
+/* Exceptions keep their own radius, e.g.:
+@-moz-document domain(example.com) {
+  .avatar { border-radius: 50% !important; }
+}
+*/

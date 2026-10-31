@@ -21,6 +21,7 @@ quickshell                            ~/.config/quickshell
 
 librewolf/librewolf.overrides.cfg     ~/.config/librewolf/librewolf/librewolf.overrides.cfg
 librewolf/ui.css                      ~/.config/librewolf/librewolf/ui.css
+librewolf/content.css                 ~/.config/librewolf/librewolf/content.css
 
 gtk/shape.css                         ~/.config/gtk-3.0/gtk.css
 gtk/gtk4.css                          ~/.config/gtk-4.0/gtk.css
