@@ -9,6 +9,8 @@ zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
 eza
+man-db
+man-pages
 
 # ===== Terminal und Schriften =====
 kitty

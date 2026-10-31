@@ -40,3 +40,7 @@ output_path = '~/.local/state/theme/colors.json'
 [templates.librewolf]
 input_path  = '~/dotfiles/theme/templates/librewolf.css'
 output_path = '~/.local/state/theme/librewolf.css'
+
+[templates.fuzzel]
+input_path  = '~/dotfiles/theme/templates/fuzzel-colors.ini'
+output_path = '~/.local/state/theme/fuzzel-colors.ini'
