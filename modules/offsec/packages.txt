@@ -1,3 +1,11 @@
-# Modul offsec
 nmap
 rustscan
+wireshark-qt
+tcpdump
+sqlmap
+gobuster
+hydra
+hashcat
+john
+# masscan
+# metasploit

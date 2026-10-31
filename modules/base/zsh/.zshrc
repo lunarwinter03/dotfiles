@@ -16,6 +16,7 @@ setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE
 setopt AUTO_CD               # Verzeichnisname allein wechselt hinein
 setopt INTERACTIVE_COMMENTS  # Kommentare mit # auch in der Kommandozeile
 unsetopt BEEP                # keine Terminal-Glocke
+unsetopt NOMATCH
 
 # ===== Farben für ls und Vervollständigung =====
 if [[ -r ~/.dircolors ]]; then

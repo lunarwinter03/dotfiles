@@ -1,0 +1,11 @@
+ghidra
+rizin
+cutter
+pwndbg
+python-pwntools
+checksec
+binwalk
+ltrace
+patchelf
+hexyl
+upx

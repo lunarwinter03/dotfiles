@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # dot - manage dotfiles
 #
-#   dot status                      show the state of this machine
+#   dot status [-a]                 show the state of this machine
 #   dot apply [-n] [-y]             bring this machine in line with its modules
 #   dot remove <module> [-n] [-y]   undo one module on this machine
 #   dot uninstall [-n] [-y]         undo everything dot has done
 #
 #     -n  dry run, change nothing
 #     -y  don't ask for confirmation
+#     -a  also show unmanaged packages
 #
 # Modules: modules/<name>/{packages.txt,links.txt,setup.sh}
 # Hosts:   hosts/<hostname>.txt, fallback hosts/default.txt
@@ -21,6 +22,7 @@ BACKUP="$STATE/backup/$(date +%Y%m%d-%H%M%S)"
 HOST="$(hostnamectl hostname 2>/dev/null || cat /etc/hostname)"
 DRY_RUN=0
 ASSUME_YES=0
+SHOW_ALL=0
 MODULES=()
 U_MODULES=() U_LINKS=() U_PKGS=() U_DEPS=()
 
@@ -244,12 +246,14 @@ cmd_status() {
   mapfile -t orphans < <(comm -23 <(state_lines packages | sort -u) <(printf '%s\n' "${pkgs[@]}"))
   if (( ${#orphans[@]} )); then item remove "${orphans[*]}"; else item ok "none"; fi
 
-  info "Explicitly installed, but in no module (repo packages only)"
-  mapfile -t extra < <(comm -23 <(pacman -Qqen | sort) <(printf '%s\n' "${pkgs[@]}"))
-  if (( ${#extra[@]} )); then
-    printf '%s\n' "${extra[*]}" | fold -s -w 76 | sed 's/^/   /'
-  else
-    item ok "none"
+  if (( SHOW_ALL )); then
+    info "Explicitly installed, but in no module (repo packages only)"
+    mapfile -t extra < <(comm -23 <(pacman -Qqen | sort) <(printf '%s\n' "${pkgs[@]}"))
+    if (( ${#extra[@]} )); then
+      printf '%s\n' "${extra[*]}" | fold -s -w 76 | sed 's/^/   /'
+    else
+      item ok "none"
+    fi
   fi
 }
 
@@ -433,6 +437,7 @@ main() {
       -n) DRY_RUN=1 ;;
       -y) ASSUME_YES=1 ;;
       -ny|-yn) DRY_RUN=1; ASSUME_YES=1 ;;
+      -a) SHOW_ALL=1 ;;
       -*) die "unknown option: $a" ;;
       *)  args+=("$a") ;;
     esac
