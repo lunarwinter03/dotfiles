@@ -331,7 +331,7 @@ PanelWindow {
                 : (folder.get(list.currentIndex, "fileName") ?? "")
                   + "   ◂ " + picker.scheme.replace("scheme-", "") + " ▸"
             color: Theme.fgDim
-            font.pixelSize: 11
+            font.pixelSize: Theme.fontSmall
         }
     }
 }

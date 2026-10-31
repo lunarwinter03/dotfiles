@@ -20,7 +20,7 @@ Rectangle {
         anchors.centerIn: parent
         text: root.busy ? "…" : root.label
         color: root.enabled ? Theme.accent : Theme.fgDim
-        font.pixelSize: 10
+        font.pixelSize: Theme.fontSmall
     }
 
     MouseArea {

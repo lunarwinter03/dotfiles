@@ -38,8 +38,8 @@ Item {
                 : root.kind === "wifi"  ? Config.iconsWifi[Math.min(4, Math.floor(root.wifiNetwork.signalStrength * 5))]
                 : root.kind === "off"   ? Config.iconWifiOff
                 : Config.iconDisconnected
-            font.family: "Symbols Nerd Font Mono"
-            font.pixelSize: 13
+            font.family: Theme.fontIcons
+            font.pixelSize: Theme.fontIcon
             color: root.kind === "none" ? Theme.urgent : Theme.fgDim
         }
 
@@ -48,7 +48,7 @@ Item {
             visible: Config.networkShowName && root.kind === "wifi"
             text: root.wifiNetwork ? root.wifiNetwork.name : ""
             color: Theme.fg
-            font.pixelSize: 12
+            font.pixelSize: Theme.fontMedium
             elide: Text.ElideRight
             width: Math.min(implicitWidth, Config.networkNameMaxWidth)
         }

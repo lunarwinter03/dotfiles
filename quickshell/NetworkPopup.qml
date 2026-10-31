@@ -160,7 +160,7 @@ PanelWindow {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "WLAN"
                         color: Theme.fg
-                        font.pixelSize: 13
+                        font.pixelSize: Theme.fontLarge
                         font.bold: true
                     }
 
@@ -195,8 +195,8 @@ PanelWindow {
                     visible: WifiScan.ipAddress !== ""
                     text: popup.deviceName + "   " + WifiScan.ipAddress
                     color: Theme.fgDim
-                    font.pixelSize: 11
-                    font.family: "monospace"
+                    font.pixelSize: Theme.fontSmall
+                    font.family: Theme.fontMono
                 }
 
                 Rectangle {
@@ -236,7 +236,7 @@ PanelWindow {
                         : WifiScan.scanning       ? "Suche …"
                         : "Keine Netze gefunden"
                     color: Theme.fgDim
-                    font.pixelSize: 11
+                    font.pixelSize: Theme.fontSmall
                 }
             }   // Column
         }       // Rectangle box

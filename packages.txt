@@ -15,6 +15,7 @@ man-pages
 # ===== Terminal und Schriften =====
 kitty
 adwaita-fonts                  # Adwaita Mono für kitty
+noto-fonts
 ttf-nerd-fonts-symbols-mono    # Symbole in der Leiste
 
 # ===== Desktop =====

@@ -58,7 +58,7 @@ PanelWindow {
         text: Time.time
         font.features: { "tnum": 1 }
         color: Theme.fg
-        font.pixelSize: 15
+        font.pixelSize: Theme.fontLarge
         font.bold: true
     }
 
@@ -92,7 +92,7 @@ PanelWindow {
             text: Time.date
             font.features: { "tnum": 1 }
             color: Theme.fgDim
-            font.pixelSize: 10
+            font.pixelSize: Theme.fontSmall
         }
     }
 

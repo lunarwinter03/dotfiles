@@ -75,16 +75,16 @@ Column {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: root.net.security !== ""
                 text: Config.iconLock
-                font.family: "Symbols Nerd Font Mono"
-                font.pixelSize: 11
+                font.family: Theme.fontIcons
+                font.pixelSize: Theme.fontIcon
                 color: Theme.fgDim
             }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: root.multi
                 text: root.expanded ? Config.iconCollapse : Config.iconExpand
-                font.family: "Symbols Nerd Font Mono"
-                font.pixelSize: 13
+                font.family: Theme.fontIcons
+                font.pixelSize: Theme.fontIcon
                 color: Theme.fgDim
             }
         }
@@ -110,15 +110,15 @@ Column {
             Row {
                 SelectableText {
                     text: root.mainAp.bssid
-                    font.pixelSize: 9
-                    font.family: "monospace"
+                    font.pixelSize: Theme.fontSmall
+                    font.family: Theme.fontMono
                     color: Theme.fgDim
                 }
 		Text {
                     text: "   " + root.mainAp.signal + "%" + root.bandSuffix(root.mainAp)
                         + (root.multi ? "   · " + root.net.aps.length + " APs" : "")
-                    font.pixelSize: 9
-                    font.family: "monospace"
+                    font.pixelSize: Theme.fontSmall
+                    font.family: Theme.fontMono
                     color: Theme.fgDim
                 }
             }
@@ -156,14 +156,14 @@ Column {
 
                     SelectableText {
                         text: apRow.modelData.bssid
-                        font.pixelSize: 9
-                        font.family: "monospace"
+                        font.pixelSize: Theme.fontSmall
+                        font.family: Theme.fontMono
                         color: apRow.modelData.inUse ? Theme.accent : Theme.fgDim
                     }
 		    Text {
                         text: "   " + apRow.modelData.signal + "%" + root.bandSuffix(apRow.modelData)
-                        font.pixelSize: 9
-                        font.family: "monospace"
+                        font.pixelSize: Theme.fontSmall
+                        font.family: Theme.fontMono
                         color: Theme.fgDim
                     }
                 }
@@ -182,7 +182,7 @@ Column {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: apRow.modelData.inUse
                     text: "● verbunden"
-                    font.pixelSize: 9
+                    font.pixelSize: Theme.fontSmall
                     color: Theme.accent
                 }
             }
@@ -208,7 +208,7 @@ Column {
             verticalAlignment: TextInput.AlignVCenter
             echoMode: TextInput.Password
             color: Theme.fg
-            font.pixelSize: 11
+            font.pixelSize: Theme.fontSmall
             clip: true
 
             onAccepted: {
@@ -229,7 +229,7 @@ Column {
             visible: pw.text === ""
             text: "Passwort, Enter zum Verbinden"
             color: Theme.fgDim
-            font.pixelSize: 10
+            font.pixelSize: Theme.fontSmall
         }
     }
 
@@ -239,6 +239,6 @@ Column {
         x: 28
         text: root.errorText
         color: Theme.urgent
-        font.pixelSize: 10
+        font.pixelSize: Theme.fontSmall
     }
 }

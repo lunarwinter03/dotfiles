@@ -23,7 +23,7 @@ Row {
             anchors.centerIn: parent
             text: root.mon ? root.mon.layout_symbol : "?"
             color: Theme.fgDim
-            font.pixelSize: 12
+            font.pixelSize: Theme.fontMedium
             font.bold: true
         }
     }
@@ -55,7 +55,7 @@ Row {
                 color: tag.modelData.is_urgent ? Theme.urgent
                      : tag.modelData.is_active ? Theme.accent
                      : Theme.fg
-                font.pixelSize: 12
+                font.pixelSize: Theme.fontMedium
                 font.bold: tag.modelData.is_active
                 font.features: { "tnum": 1 }
             }

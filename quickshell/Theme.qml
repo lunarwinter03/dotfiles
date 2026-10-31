@@ -23,6 +23,14 @@ Singleton {
             property string outline_variant:    "#3a3d44"
             property string error:              "#e06c75"
 	    property string source_color:	""
+
+	    property string font_sans:   "sans-serif"
+            property string font_mono:   "monospace"
+            property string font_icons:  "Symbols Nerd Font Mono"
+            property int    font_small:  10
+            property int    font_medium: 12
+            property int    font_large:  15
+            property int    font_icon:   13
         }
     }
 
@@ -35,6 +43,15 @@ Singleton {
     readonly property color outlineVariant: c.outline_variant
     readonly property color urgent:         c.error
     readonly property string sourceColor:   c.source_color
+
+    // ===== Schriften für die Leiste =====
+    readonly property string fontSans:   c.font_sans
+    readonly property string fontMono:   c.font_mono
+    readonly property string fontIcons:  c.font_icons
+    readonly property int    fontSmall:  c.font_small
+    readonly property int    fontMedium: c.font_medium
+    readonly property int    fontLarge:  c.font_large
+    readonly property int    fontIcon:   c.font_icon
 
     // Alpha
     readonly property real bgAlphaTop:    0.9

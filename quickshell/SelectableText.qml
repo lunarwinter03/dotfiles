@@ -7,5 +7,5 @@ TextEdit {
     selectionColor: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.35)
     selectedTextColor: Theme.fg
     color: Theme.fg
-    font.pixelSize: 12
+    font.pixelSize: Theme.fontMedium
 }

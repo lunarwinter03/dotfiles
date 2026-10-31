@@ -19,8 +19,8 @@ Row {
     Text {
         anchors.verticalCenter: parent.verticalCenter
         text: root.icon
-        font.family: "Symbols Nerd Font Mono"
-        font.pixelSize: 13
+        font.family: Theme.fontIcons
+        font.pixelSize: Theme.fontIcon
         color: Theme.fgDim
     }
 
@@ -35,7 +35,7 @@ Row {
             anchors.right: parent.right
             text: root.value + "%"
             color: Theme.fg
-            font.pixelSize: 12
+            font.pixelSize: Theme.fontMedium
             font.features: { "tnum": 1 }
         }
     }
@@ -46,7 +46,7 @@ Row {
         visible: Config.statsShowTemp && root.temp >= 0
         text: root.temp + "°"
         color: Theme.fgDim
-        font.pixelSize: 11
+        font.pixelSize: Theme.fontSmall
         font.features: { "tnum": 1 }
     }
 }

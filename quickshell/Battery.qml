@@ -46,8 +46,8 @@ Row {
         text: root.charging
             ? Config.iconBatteryCharging
             : Config.iconsBattery[Math.min(10, Math.floor(root.percent / 10))]
-        font.family: "Symbols Nerd Font Mono"
-        font.pixelSize: 13
+        font.family: Theme.fontIcons
+        font.pixelSize: Theme.fontIconTheme.fontIcon
         color: root.low      ? Theme.urgent
              : root.charging ? Theme.accent
              : Theme.fgDim
@@ -64,7 +64,7 @@ Row {
             anchors.right: parent.right
             text: root.percent + "%"
             color: root.low ? Theme.urgent : Theme.fg
-            font.pixelSize: 12
+            font.pixelSize: Theme.fontMedium
             font.features: { "tnum": 1 }
         }
     }
@@ -75,7 +75,7 @@ Row {
         visible: Config.batteryShowTime && root.seconds > 0
         text: root.formatTime(root.seconds)
         color: Theme.fgDim
-        font.pixelSize: 11
+        font.pixelSize: Theme.fontSmall
         font.features: { "tnum": 1 }
     }
 }
