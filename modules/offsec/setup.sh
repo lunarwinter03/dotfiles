@@ -1,16 +1,30 @@
+PARTS=(wireshark-qt seclists)
+
 SECLISTS_DIR="$HOME/.local/share/seclists"
 SECLISTS_URL="https://github.com/danielmiessler/SecLists.git"
 
-setup() {
+setup_wireshark-qt() {
   info "offsec: wireshark group"
   if id -nG "$USER" | tr ' ' '\n' | grep -qx wireshark; then
     item ok "member"
-  else
-    state_remember wireshark.group added
-    run sudo usermod -aG wireshark "$USER"
-    item added "takes effect after next login"
+    return
   fi
+  state_remember wireshark.group added
+  run sudo usermod -aG wireshark "$USER"
+  item added "takes effect after next login"
+}
 
+teardown_wireshark-qt() {
+  info "offsec: wireshark group"
+  if [[ "$(state_value wireshark.group)" == "added" ]]; then
+    run sudo gpasswd -d "$USER" wireshark
+    item removed "membership"
+  else
+    item ok "unchanged by dot"
+  fi
+}
+
+setup_seclists() {
   info "offsec: seclists"
   if [[ ! -d "$SECLISTS_DIR/.git" ]]; then
     run git clone --depth 1 "$SECLISTS_URL" "$SECLISTS_DIR"
@@ -31,18 +45,10 @@ setup() {
     item ok "up to date"
   else
     item updated "$SECLISTS_DIR"
-  fi 
+  fi
 }
 
-teardown() {
-  info "offsec: wireshark group"
-  if [[ "$(state_value wireshark.group)" == "added" ]]; then
-    run sudo gpasswd -d "$USER" wireshark
-    item removed "membership"
-  else
-    item ok "unchanged by dot"
-  fi
-
+teardown_seclists() {
   info "offsec: seclists"
   if [[ -d "$SECLISTS_DIR" ]]; then
     run rm -rf "$SECLISTS_DIR"

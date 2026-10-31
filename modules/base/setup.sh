@@ -1,4 +1,6 @@
-setup() {
+PARTS=(zsh)
+
+setup_zsh() {
   info "base: login shell"
   local current
   current="$(getent passwd "$USER" | cut -d: -f7)"
@@ -10,7 +12,7 @@ setup() {
   run chsh -s /usr/bin/zsh
 }
 
-teardown() {
+teardown_zsh() {
   info "base: login shell"
   local previous
   previous="$(state_value shell)"

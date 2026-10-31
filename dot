@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # dot - manage dotfiles
 #
-#   dot status [-a]                 show the state of this machine
-#   dot apply [-n] [-y]             bring this machine in line with its modules
-#   dot remove <module> [-n] [-y]   undo one module on this machine
-#   dot uninstall [-n] [-y]         undo everything dot has done
+#   dot status [-a]                          show the state of this machine
+#   dot apply [-n] [-y]                      bring this machine in line with its host
+#   dot remove <module>[/<part>] [-n] [-y]   undo a module or one of its parts
+#   dot uninstall [-n] [-y]                  undo everything dot has done
 #
 #     -n  dry run, change nothing
 #     -y  don't ask for confirmation
 #     -a  also show unmanaged packages
 #
 # Modules: modules/<name>/{packages.txt,links.txt,setup.sh}
-# Hosts:   hosts/<hostname>.txt, fallback hosts/default.txt
+# Hosts:   hosts/<hostname>/{modules.txt,packages.txt,links.txt,setup.sh}, fallback hosts/default/
 # State:   ~/.local/state/dotfiles/
 
 set -euo pipefail
@@ -20,11 +20,14 @@ DOTFILES="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
 BACKUP="$STATE/backup/$(date +%Y%m%d-%H%M%S)"
 HOST="$(hostnamectl hostname 2>/dev/null || cat /etc/hostname)"
+HOST_DIR=""
 DRY_RUN=0
 ASSUME_YES=0
 SHOW_ALL=0
+IGNORE_EXCLUDES=0
 MODULES=()
-U_MODULES=() U_LINKS=() U_PKGS=() U_DEPS=()
+declare -A EXCLUDE=()
+U_MODULES=() U_LINKS=() U_PKGS=() U_DEPS=() U_PART=""
 
 # ===== output =====
 
@@ -47,6 +50,14 @@ confirm() {
   local answer
   read -r -p "Continue? [y/N] " answer
   [[ "$answer" == [yY]* ]]
+}
+
+in_list() {
+  local needle="$1" x; shift
+  for x in "$@"; do
+    if [[ "$x" == "$needle" ]]; then return 0; fi
+  done
+  return 1
 }
 
 # ===== state =====
@@ -131,32 +142,81 @@ prune_dirs() {
   done
 }
 
-# ===== modules =====
+# ===== hosts and modules =====
 
 read_list() {
   if [[ ! -f "$1" ]]; then return 0; fi
   sed -e 's/#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$1" | grep -v '^$' || true
 }
 
-load_modules() {
-  local file="$DOTFILES/hosts/$HOST.txt" m
-  if [[ ! -f "$file" ]]; then
-    warn "no host file for '$HOST', using default.txt"
-    file="$DOTFILES/hosts/default.txt"
+resolve_host() {
+  HOST_DIR="$DOTFILES/hosts/$HOST"
+  if [[ ! -d "$HOST_DIR" ]]; then
+    warn "no host directory for '$HOST', using hosts/default"
+    HOST_DIR="$DOTFILES/hosts/default"
   fi
-  mapfile -t MODULES < <(read_list "$file" | tr -s ' \t' '\n' | grep -v '^$' || true)
-  if (( ${#MODULES[@]} == 0 )); then die "no modules in $file"; fi
-  for m in "${MODULES[@]}"; do
-    if [[ ! -d "$DOTFILES/modules/$m" ]]; then die "unknown module: $m"; fi
-  done
+}
+
+# modules.txt: module names; "-part" excludes a part of the module above it
+load_modules() {
+  local token last=""
+  resolve_host
+  MODULES=()
+  EXCLUDE=()
+  while read -r token; do
+    if [[ "$token" == -* ]]; then
+      if [[ -z "$last" ]]; then die "'$token' in $HOST_DIR/modules.txt does not follow a module"; fi
+      EXCLUDE["$last/${token#-}"]=1
+    else
+      if [[ ! -d "$DOTFILES/modules/$token" ]]; then die "unknown module: $token"; fi
+      MODULES+=("$token")
+      last="$token"
+    fi
+  done < <(read_list "$HOST_DIR/modules.txt" | tr -s ' \t' '\n' | grep -v '^$' || true)
+  if (( ${#MODULES[@]} == 0 )); then die "no modules in $HOST_DIR/modules.txt"; fi
+  MODULES+=(host)
+}
+
+# The host directory acts as an extra module named "host"
+module_dir() {
+  if [[ "$1" == host ]]; then
+    printf '%s' "$HOST_DIR"
+  else
+    printf '%s' "$DOTFILES/modules/$1"
+  fi
 }
 
 all_modules() {
   find "$DOTFILES/modules" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort
+  echo host
 }
 
+excluded() {
+  (( ! IGNORE_EXCLUDES )) && [[ -n "${EXCLUDE[$1/$2]:-}" ]]
+}
+
+module_parts() {
+  local dir
+  dir="$(module_dir "$1")"
+  if [[ ! -f "$dir/setup.sh" ]]; then return 0; fi
+  (
+    MODULE_DIR="$dir"
+    PARTS=()
+    source "$dir/setup.sh"
+    if (( ${#PARTS[@]} )); then printf '%s\n' "${PARTS[@]}"; fi
+  )
+}
+
+# Packages of a module, or only those of one part
 module_packages() {
-  read_list "$DOTFILES/modules/$1/packages.txt"
+  local m="$1" part="${2:-}" p
+  while read -r p; do
+    if [[ -n "$part" ]]; then
+      if [[ "$p" == "$part" ]]; then echo "$p"; fi
+    elif ! excluded "$m" "$p"; then
+      echo "$p"
+    fi
+  done < <(read_list "$(module_dir "$m")/packages.txt")
 }
 
 packages_of() {
@@ -164,24 +224,42 @@ packages_of() {
   for m in "$@"; do module_packages "$m"; done | sort -u
 }
 
-# "source<TAB>target" per link of a module
+# "source<TAB>target" per link; a link belongs to the part named by its first path segment
 module_links() {
-  local m="$1" src dst real
+  local m="$1" part="${2:-}" dir src dst first real
+  dir="$(module_dir "$m")"
   while read -r src dst; do
-    real="$DOTFILES/modules/$m/${src//\{host\}/$HOST}"
+    first="${src%%/*}"
+    if [[ -n "$part" ]]; then
+      if [[ "$first" != "$part" ]]; then continue; fi
+    elif excluded "$m" "$first"; then
+      continue
+    fi
+    real="$dir/${src//\{host\}/$HOST}"
     if [[ "$src" == *"{host}"* && ! -e "$real" ]]; then
-      real="$DOTFILES/modules/$m/${src//\{host\}/default}"
+      real="$dir/${src//\{host\}/default}"
     fi
     printf '%s\t%s\n' "$(realpath -m "$real")" "${dst/#\~/$HOME}"
-  done < <(read_list "$DOTFILES/modules/$m/links.txt")
+  done < <(read_list "$dir/links.txt")
 }
 
 check_conflicts() {
-  local dups
+  local dups m
   dups="$(for m in "${MODULES[@]}"; do module_links "$m"; done | cut -f2 | sort | uniq -d)"
   if [[ -n "$dups" ]]; then
     die "target listed more than once (duplicate line or two modules want the same file):"$'\n'"$dups"
   fi
+}
+
+check_excludes() {
+  local key m p
+  for key in "${!EXCLUDE[@]}"; do
+    m="${key%%/*}"; p="${key#*/}"
+    if [[ -z "$(module_packages "$m" "$p")$(module_links "$m" "$p")" ]] \
+       && ! module_parts "$m" | grep -qx -- "$p"; then
+      warn "'-$p' matches nothing in module $m"
+    fi
+  done
 }
 
 # ok | new | replace | backup | missing
@@ -198,14 +276,33 @@ link_state() {
   echo new
 }
 
-# Run setup or teardown of a module in a subshell, so modules can't clash
+# setup/teardown in a subshell so modules can't clash. With PARTS, call
+# <hook>_<part> per part (teardown in reverse order), skipping excluded parts.
 run_hook() {
-  local m="$1" hook="$2"
-  if [[ ! -f "$DOTFILES/modules/$m/setup.sh" ]]; then return 0; fi
+  local m="$1" hook="$2" part="${3:-}" dir
+  dir="$(module_dir "$m")"
+  if [[ ! -f "$dir/setup.sh" ]]; then return 0; fi
   (
-    MODULE_DIR="$DOTFILES/modules/$m"
-    source "$MODULE_DIR/setup.sh"
-    if declare -F "$hook" >/dev/null; then "$hook"; fi
+    MODULE_DIR="$dir"
+    PARTS=()
+    source "$dir/setup.sh"
+    if (( ${#PARTS[@]} == 0 )); then
+      if [[ -z "$part" ]] && declare -F "$hook" >/dev/null; then "$hook"; fi
+      exit 0
+    fi
+    order=()
+    for (( i = 0; i < ${#PARTS[@]}; i++ )); do
+      if [[ "$hook" == teardown ]]; then
+        order+=("${PARTS[${#PARTS[@]} - 1 - i]}")
+      else
+        order+=("${PARTS[i]}")
+      fi
+    done
+    for p in "${order[@]}"; do
+      if [[ -n "$part" && "$p" != "$part" ]]; then continue; fi
+      if [[ -z "$part" ]] && excluded "$m" "$p"; then continue; fi
+      if declare -F "${hook}_$p" >/dev/null; then "${hook}_$p"; fi
+    done
   )
 }
 
@@ -219,10 +316,14 @@ checks() {
 cmd_status() {
   load_modules
   check_conflicts
+  check_excludes
   local m src dst st n_ok=0 pkgs=() missing=() extra=() orphans=()
 
-  info "Host: $HOST"
+  info "Host: $HOST ($(basename "$HOST_DIR"))"
   item modules "${MODULES[*]}"
+  if (( ${#EXCLUDE[@]} )); then
+    while read -r m; do item excluded "$m"; done < <(printf '%s\n' "${!EXCLUDE[@]}" | sort)
+  fi
 
   info "Packages"
   mapfile -t pkgs < <(packages_of "${MODULES[@]}")
@@ -263,6 +364,7 @@ cmd_apply() {
   checks
   load_modules
   check_conflicts
+  check_excludes
 
   local m p i src dst st n_ok=0
   local all=() missing=() asdeps=() l_src=() l_dst=() l_state=()
@@ -326,12 +428,13 @@ cmd_apply() {
 
 # ===== remove / uninstall =====
 
-# Undo U_MODULES (teardown), U_LINKS, U_PKGS (remove), U_DEPS (back to dependency)
+# Undo U_MODULES (teardown, limited to U_PART if set), U_LINKS,
+# U_PKGS (remove), U_DEPS (back to dependency)
 undo() {
   local m dst src p
   info "Plan"
   for m in "${U_MODULES[@]}"; do
-    ( DRY_RUN=1; run_hook "$m" teardown ) 2>&1 | sed 's/^/  /'
+    ( DRY_RUN=1; run_hook "$m" teardown "$U_PART" ) 2>&1 | sed 's/^/  /'
   done
   for dst in "${U_LINKS[@]}"; do item unlink "$dst"; done
   if (( ${#U_PKGS[@]} )); then item remove "${U_PKGS[*]}"; fi
@@ -340,7 +443,7 @@ undo() {
   if ! confirm; then info "Aborted."; return 1; fi
   if (( DRY_RUN )); then info "DRY RUN: nothing will be changed"; fi
 
-  for m in "${U_MODULES[@]}"; do run_hook "$m" teardown; done
+  for m in "${U_MODULES[@]}"; do run_hook "$m" teardown "$U_PART"; done
 
   if (( ${#U_LINKS[@]} )); then
     info "Links"
@@ -376,23 +479,34 @@ undo() {
 }
 
 cmd_remove() {
-  local target="${1:-}" m src dst keep own
+  local target="${1:-}" mod part="" m src dst keep own
   checks
-  if [[ -z "$target" ]]; then die "usage: dot remove <module>"; fi
-  if [[ ! -d "$DOTFILES/modules/$target" ]]; then die "unknown module: $target"; fi
+  if [[ -z "$target" ]]; then die "usage: dot remove <module>[/<part>]"; fi
+  mod="${target%%/*}"
+  if [[ "$target" == */* ]]; then part="${target#*/}"; fi
+  if [[ ! -d "$DOTFILES/modules/$mod" ]]; then die "unknown module: $mod"; fi
   load_modules
 
-  local others=()
-  for m in "${MODULES[@]}"; do
-    if [[ "$m" == "$target" ]]; then
-      warn "'$target' is still listed in hosts/$HOST.txt, the next apply will bring it back"
-    else
-      others+=("$m")
+  if in_list "$mod" "${MODULES[@]}"; then
+    if [[ -z "$part" ]]; then
+      warn "'$mod' is still listed in $HOST_DIR/modules.txt, the next apply will bring it back"
+    elif ! excluded "$mod" "$part"; then
+      warn "add '-$part' under '$mod' in $HOST_DIR/modules.txt, or the next apply will bring it back"
     fi
-  done
+  fi
 
-  keep="$(packages_of "${others[@]}")"
-  own="$(module_packages "$target" | sort -u)"
+  # Packages still needed by everything else that stays active
+  keep="$(for m in "${MODULES[@]}"; do
+            if [[ "$m" != "$mod" ]]; then
+              module_packages "$m"
+            elif [[ -n "$part" ]]; then
+              module_packages "$m" | grep -vx -- "$part" || true
+            fi
+          done | sort -u)"
+
+  # From here on, remove what dot did regardless of current excludes
+  IGNORE_EXCLUDES=1
+  own="$(module_packages "$mod" "$part" | sort -u)"
   mapfile -t U_PKGS < <(comm -12 <(printf '%s\n' "$own") <(state_lines packages | sort -u) \
                         | comm -23 - <(printf '%s\n' "$keep") | grep -v '^$' || true)
   mapfile -t U_DEPS < <(comm -12 <(printf '%s\n' "$own") <(state_lines explicit | sort -u) \
@@ -401,15 +515,18 @@ cmd_remove() {
   U_LINKS=()
   while IFS=$'\t' read -r src dst; do
     if [[ -n "$(link_source "$dst")" ]]; then U_LINKS+=("$dst"); fi
-  done < <(module_links "$target")
+  done < <(module_links "$mod" "$part")
 
-  U_MODULES=("$target")
+  U_MODULES=("$mod")
+  U_PART="$part"
   undo || true
 }
 
 cmd_uninstall() {
   local entry
   checks
+  resolve_host
+  IGNORE_EXCLUDES=1
   mapfile -t U_MODULES < <(all_modules)
   mapfile -t U_LINKS   < <(state_lines links | cut -f1)
   mapfile -t U_PKGS    < <(state_lines packages | sort -u)
@@ -428,7 +545,7 @@ cmd_uninstall() {
 }
 
 usage() {
-  sed -n '2,13p' "$DOTFILES/dot" | sed 's/^# \{0,1\}//'
+  sed -n '2,15p' "$DOTFILES/dot" | sed 's/^# \{0,1\}//'
 }
 
 # ===== main =====

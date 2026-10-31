@@ -1,3 +1,5 @@
+PARTS=(overrides librewolf gtk theme)
+
 # Files that silently override our configs
 OVERRIDES=(
   "$HOME/.config/kitty/dark-theme.auto.conf"
@@ -7,7 +9,7 @@ OVERRIDES=(
 )
 LIBREWOLF_PREF=/usr/lib/librewolf/defaults/pref/dotfiles.js
 
-setup() {
+setup_overrides() {
   info "desktop: overrides"
   local f found=0
   for f in "${OVERRIDES[@]}"; do
@@ -18,9 +20,17 @@ setup() {
     fi
   done
   if (( ! found )); then item ok "none"; fi
+}
 
-  # The pref file disables the AutoConfig sandbox. It belongs to no
-  # package, so it survives updates.
+teardown_overrides() {
+  info "desktop: overrides"
+  local f
+  for f in "${OVERRIDES[@]}"; do restore_backup "$f"; done
+}
+
+# The pref file disables the AutoConfig sandbox. It belongs to no package,
+# so it survives updates.
+setup_librewolf() {
   info "desktop: librewolf"
   if [[ ! -d "$(dirname "$LIBREWOLF_PREF")" ]]; then
     item skip "librewolf not installed"
@@ -30,26 +40,50 @@ setup() {
     run sudo install -m 644 "$MODULE_DIR/librewolf/dotfiles.js" "$LIBREWOLF_PREF"
     item new "$LIBREWOLF_PREF"
   fi
+}
 
-  info "desktop: gtk"
-  if command -v gsettings >/dev/null; then
-    gtk_set gtk-theme    adw-gtk3-matugen
-    gtk_set color-scheme prefer-dark
+teardown_librewolf() {
+  info "desktop: librewolf"
+  if [[ -f "$LIBREWOLF_PREF" ]]; then
+    run sudo rm "$LIBREWOLF_PREF"
+    item removed "$LIBREWOLF_PREF"
   else
-    item skip "gsettings not available"
-  fi
-
-  info "desktop: theme"
-  if [[ -f "$HOME/.local/state/theme/colors.json" ]]; then
-    item ok "exists"
-  else
-    run mkdir -p "$HOME/.local/state/theme"
-    run "$MODULE_DIR/theme/bin/theme-apply" color hex "#7aa2f7" -m dark -t scheme-vibrant \
-      || warn "matugen failed, expected outside a mango session"
+    item ok "nothing to remove"
   fi
 }
 
-teardown() {
+setup_gtk() {
+  info "desktop: gtk"
+  if ! command -v gsettings >/dev/null; then
+    item skip "gsettings not available"
+    return
+  fi
+  gtk_set gtk-theme    adw-gtk3-matugen
+  gtk_set color-scheme prefer-dark
+}
+
+teardown_gtk() {
+  info "desktop: gtk"
+  if ! command -v gsettings >/dev/null; then return; fi
+  gtk_restore gtk-theme    adw-gtk3-matugen
+  gtk_restore color-scheme prefer-dark
+  # Set by theme-apply on every run, so reset to the default
+  run gsettings reset org.gnome.desktop.interface font-name
+  run gsettings reset org.gnome.desktop.interface monospace-font-name
+}
+
+setup_theme() {
+  info "desktop: theme"
+  if [[ -f "$HOME/.local/state/theme/colors.json" ]]; then
+    item ok "exists"
+    return
+  fi
+  run mkdir -p "$HOME/.local/state/theme"
+  run "$MODULE_DIR/theme/bin/theme-apply" color hex "#7aa2f7" -m dark -t scheme-vibrant \
+    || warn "matugen failed, expected outside a mango session"
+}
+
+teardown_theme() {
   info "desktop: generated files"
   local out
   while read -r out; do
@@ -64,27 +98,6 @@ teardown() {
     run rm -rf "$HOME/.local/state/theme"
     item removed "$HOME/.local/state/theme"
   fi
-
-  info "desktop: librewolf"
-  if [[ -f "$LIBREWOLF_PREF" ]]; then
-    run sudo rm "$LIBREWOLF_PREF"
-    item removed "$LIBREWOLF_PREF"
-  else
-    item ok "nothing to remove"
-  fi
-
-  info "desktop: gtk"
-  if command -v gsettings >/dev/null; then
-    gtk_restore gtk-theme    adw-gtk3-matugen
-    gtk_restore color-scheme prefer-dark
-    # Set by theme-apply on every run, so reset to the default
-    run gsettings reset org.gnome.desktop.interface font-name
-    run gsettings reset org.gnome.desktop.interface monospace-font-name
-  fi
-
-  info "desktop: overrides"
-  local f
-  for f in "${OVERRIDES[@]}"; do restore_backup "$f"; done
 }
 
 gtk_set() {

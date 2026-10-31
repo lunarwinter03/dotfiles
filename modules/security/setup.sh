@@ -1,6 +1,8 @@
+PARTS=(usbguard)
+
 USBGUARD_RULES=/etc/usbguard/rules.conf
 
-setup() {
+setup_usbguard() {
   info "security: usbguard"
   if systemctl is-enabled usbguard.service >/dev/null 2>&1; then
     item ok "enabled"
@@ -18,7 +20,7 @@ setup() {
   item enabled "usbguard"
 }
 
-teardown() {
+teardown_usbguard() {
   info "security: usbguard"
   if [[ "$(state_value usbguard.enabled)" == "no" ]]; then
     run sudo systemctl disable --now usbguard.service
