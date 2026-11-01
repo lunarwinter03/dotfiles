@@ -34,7 +34,10 @@ PanelWindow {
         spacing: Theme.gap
 
         Repeater {
-            model: Notifs.popups.slice(-Config.notificationMaxVisible)
+            model: {
+                const shown = Notifs.popups.slice(-Config.notificationMaxVisible)
+                return Config.notificationPopupOrder === "newest" ? shown.reverse() : shown
+            }    
 	    
 	    NotificationCard {
                 required property var modelData

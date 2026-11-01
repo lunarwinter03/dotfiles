@@ -22,7 +22,9 @@ PanelWindow {
     // Klicks nur auf Leiste und Datumsbereich annehmen
     mask: Region {
         item: barBg
-        Region { item: dateTab }
+	Region { item: dateTab }
+	width: { active ? Theme.pad + icon.width + Theme.gap + Math.min(measure.implicitWidth, textRoom) + height: 0 }
+	Region { item: mediaTab }
     }
 
     // ===== Hauptleiste =====
@@ -52,8 +54,9 @@ PanelWindow {
 
     // ===== Uhrzeit (Mitte) =====
     Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        height: Theme.barHeight
+        //anchors.horizontalCenter: parent.horizontalCenter
+	x: Math.round((parent.width - width) / 2)
+	height: Theme.barHeight
         verticalAlignment: Text.AlignVCenter
         text: Time.time
         font.features: { "tnum": 1 }
@@ -96,7 +99,14 @@ PanelWindow {
         }
     }
 
-        // ===== Rechte Seite =====
+    // ===== Media \____/ at the left edge =====
+    MediaTab {
+        id: mediaTab
+        x: 0
+        y: Theme.barHeight
+    }
+
+    // ===== Rechte Seite =====
     Row {
         anchors { right: parent.right; rightMargin: 8 }
         height: Theme.barHeight
@@ -153,7 +163,7 @@ PanelWindow {
     Loader {
         anchors.fill: parent
         active: Config.borderMode !== "none"
-        sourceComponent: Component { BarBorder {} }
+	sourceComponent: Component { BarBorder { mediaWidth: mediaTab.width } }
     }
 
 

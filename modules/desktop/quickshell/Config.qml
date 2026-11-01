@@ -12,9 +12,9 @@ Singleton {
     // "gradient" = Verlauf zwischen zwei Theme-Farben
     // "rgb"      = Regenbogen
     readonly property string borderMode: "gradient"
-
-    readonly property real borderWidth:    1.6     // unter der Hauptleiste, in px
-    readonly property real borderWidthTab: 0.6   // um den Datumsbereich, in px
+    readonly property bool borderTaper: true   // slants thin out from bar to tab thickness
+    readonly property real borderWidth:    2     // unter der Hauptleiste, in px
+    readonly property real borderWidthTab: 1   // um den Datumsbereich, in px
     readonly property bool borderAnimated: true // nur für gradient/rgb
     readonly property real borderSpeed: 5       // Sekunden pro Durchlauf
     readonly property string borderDirection: "right" // Richtung wohin (to) <left|right>
@@ -22,11 +22,22 @@ Singleton {
     readonly property real borderLightness:  0.6   // Ziel-Helligkeit 0–1, -1 = unverändert
 
     // ===== Notifications =====
-    readonly property int notificationTimeout:         3     // seconds, if the app sets none
+    readonly property int notificationTimeout:         6     // seconds, if the app sets none
     readonly property int notificationWidth:           360
     readonly property int notificationMaxVisible:      4
     readonly property int notificationHistoryMax:      50
     readonly property int notificationCenterMaxHeight: 500
+    readonly property string notificationPopupOrder:   "oldest"   // "oldest" or "newest" first
+    readonly property string notificationHistoryOrder: "newest"
+
+    // ===== Media =====
+    readonly property bool mediaShow:  true
+    readonly property int  mediaMaxWidth: 300
+    readonly property int  mediaScrollSpeed: 30
+    readonly property var  mediaIgnore: ["librewolf"]
+    readonly property string iconPlay:  "󰐊"   // nf-md-play
+    readonly property string iconPause: "󰏤"   // nf-md-pause
+
 
     // Farben für "gradient"
     readonly property color borderColorA: Theme.accent

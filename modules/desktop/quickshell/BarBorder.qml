@@ -4,21 +4,28 @@ import QtQuick.Shapes
 Item {
     id: root
 
-    // ===== Geometrie =====
+    // ===== Geometry (positions on whole pixels, thickness may be fractional) =====
     readonly property real bh: Theme.barHeight
     readonly property real dh: Theme.dateHeight
-    readonly property real tl: (width - Theme.dateWidth) / 2   // linke Kante Datumsbereich
-    readonly property real tr: tl + Theme.dateWidth             // rechte Kante Datumsbereich
+    readonly property real tl: Math.round((width - Theme.dateWidth) / 2)   // left edge of the date tab
+    readonly property real tr: tl + Theme.dateWidth                         // right edge of the date tab
 
-    // ===== Stärken =====
-    readonly property real w:  Config.borderWidth      // unter der Hauptleiste
-    readonly property real t:  Config.borderWidthTab   // um den Datumsbereich
-    readonly property real s2: Math.SQRT2              // für die 45°-Ecken
-    // Verstärkte Farben der Unterkante
+    // Media tab at the left edge, 0 when hidden (also guards against NaN)
+    property real mediaWidth: 0
+    readonly property real mw: mediaWidth > 0 ? Math.round(mediaWidth) : 0
+    readonly property bool mv: mw > 0
+
+    // ===== Thickness =====
+    readonly property real w: Config.borderWidth       // below the bar
+    readonly property real t: Config.borderWidthTab    // around the tabs
+    readonly property real s2: Math.SQRT2              // for the 45° corners
+
+    readonly property real wJoin: Config.borderTaper ? w * (s2 - 1) : t * s2 - w
+
     readonly property color colorA: Theme.boost(Config.borderColorA, Config.borderSaturation, Config.borderLightness)
     readonly property color colorB: Theme.boost(Config.borderColorB, Config.borderSaturation, Config.borderLightness)
 
-    // ===== Animation: verschiebt das Farbmuster =====
+    // ===== Animation: moves the colour pattern =====
     property real patternShift: 0
     readonly property bool toRight: Config.borderDirection === "right"
 
@@ -30,52 +37,58 @@ Item {
         loops: Animation.Infinite
     }
 
-    // ===== Der Rand als gefülltes Band =====
+    // ===== The border as a filled band =====
+    // Slants taper from the bar's thickness (top) to the tab's thickness (bottom)
     Shape {
         anchors.fill: parent
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
             strokeColor: "transparent"
-            fillColor: Theme.accent                 // für "solid"
+            fillColor: Theme.accent
             fillGradient: Config.borderMode === "rgb"      ? rgbGradient
                         : Config.borderMode === "gradient" ? themeGradient
                         : null
 
-            // Innenkante = Kontur von Leiste und Datumsbereich (links -> rechts)
-            startX: 0;                       startY: root.bh
-            PathLine { x: root.tl;           y: root.bh }
-            PathLine { x: root.tl + root.dh; y: root.bh + root.dh }
-            PathLine { x: root.tr - root.dh; y: root.bh + root.dh }
-            PathLine { x: root.tr;           y: root.bh }
-            PathLine { x: root.width;        y: root.bh }
+            // Inner edge, left to right: media tab, bar, date tab, bar
+            startX: 0; startY: root.mv ? root.bh + root.dh : root.bh
+            PathLine { x: root.mv ? root.mw - root.dh : 0; y: root.mv ? root.bh + root.dh : root.bh }
+            PathLine { x: root.mw;               y: root.bh }
+            PathLine { x: root.tl;               y: root.bh }
+            PathLine { x: root.tl + root.dh;     y: root.bh + root.dh }
+            PathLine { x: root.tr - root.dh;     y: root.bh + root.dh }
+            PathLine { x: root.tr;               y: root.bh }
+            PathLine { x: root.width;            y: root.bh }
 
-            // Außenkante (rechts -> links)
-            PathLine { x: root.width;                                    y: root.bh + root.w }
-            PathLine { x: root.tr - root.w + root.t * root.s2;           y: root.bh + root.w }
-            PathLine { x: root.tr - root.dh - root.t + root.t * root.s2; y: root.bh + root.dh + root.t }
-            PathLine { x: root.tl + root.dh + root.t - root.t * root.s2; y: root.bh + root.dh + root.t }
-            PathLine { x: root.tl + root.w - root.t * root.s2;           y: root.bh + root.w }
-            PathLine { x: 0;                                             y: root.bh + root.w }
-            PathLine { x: 0;                                             y: root.bh }
+            // Outer edge, right to left: bar, date tab, bar, media tab
+            PathLine { x: root.width;                                     y: root.bh + root.w }
+            PathLine { x: root.tr + root.wJoin;                           y: root.bh + root.w }
+            PathLine { x: root.tr - root.dh - root.t + root.t * root.s2;  y: root.bh + root.dh + root.t }
+            PathLine { x: root.tl + root.dh + root.t - root.t * root.s2;  y: root.bh + root.dh + root.t }
+            PathLine { x: root.tl - root.wJoin;                           y: root.bh + root.w }
+            PathLine { x: root.mv ? root.mw + root.wJoin : 0;             y: root.bh + root.w }
+            PathLine { x: root.mv ? root.mw - root.dh - root.t + root.t * root.s2 : 0
+                       y: root.mv ? root.bh + root.dh + root.t : root.bh + root.w }
+            PathLine { x: 0; y: root.mv ? root.bh + root.dh + root.t : root.bh + root.w }
+            PathLine { x: 0; y: root.mv ? root.bh + root.dh : root.bh }
         }
     }
 
-    // ===== Farbmuster =====
-    // RepeatSpread wiederholt das Muster endlos, dadurch ist die Animation nahtlos
+    // ===== Colour patterns =====
+    // RepeatSpread repeats the pattern endlessly, so the animation is seamless
     LinearGradient {
         id: themeGradient
-        x1: root.patternShift;              y1: 0
+        x1: root.patternShift; y1: 0
         x2: root.patternShift + root.width; y2: 0
         spread: ShapeGradient.RepeatSpread
         GradientStop { position: 0.0; color: root.colorA }
         GradientStop { position: 0.5; color: root.colorB }
-	GradientStop { position: 1.0; color: root.colorA }
+        GradientStop { position: 1.0; color: root.colorA }
     }
 
     LinearGradient {
         id: rgbGradient
-        x1: root.patternShift;              y1: 0
+        x1: root.patternShift; y1: 0
         x2: root.patternShift + root.width; y2: 0
         spread: ShapeGradient.RepeatSpread
         GradientStop { position: 0/6; color: "#ff0000" }

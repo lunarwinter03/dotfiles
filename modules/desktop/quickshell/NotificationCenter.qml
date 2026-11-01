@@ -5,6 +5,14 @@ import Quickshell.Wayland
 PanelWindow {
     id: center
     required property var targetScreen
+    readonly property bool newestFirst: Config.notificationHistoryOrder === "newest"
+
+    function scrollToNewest() {
+        if (newestFirst)
+            list.positionViewAtBeginning()
+        else
+            list.positionViewAtEnd()
+    }
 
     screen: targetScreen
     visible: Popups.notifications === targetScreen.name
