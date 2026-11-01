@@ -82,6 +82,13 @@ PanelWindow {
         value: popup.passwordFor !== ""
         when: popup.visible
     }
+    // Popups need the visible height to move below this window
+    Binding {
+        target: Popups
+        property: "networkHeight"
+        value: box.height
+        when: popup.visible
+    }
 
     screen: targetScreen
     visible: Popups.network === targetScreen.name

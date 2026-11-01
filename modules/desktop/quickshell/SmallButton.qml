@@ -8,7 +8,7 @@ Rectangle {
 
     implicitWidth: txt.implicitWidth + 12
     implicitHeight: 18
-    radius: 4
+    radius: Theme.radius
     color: area.containsMouse ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15)
                               : "transparent"
     border.width: 1

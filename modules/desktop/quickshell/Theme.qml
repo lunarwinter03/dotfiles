@@ -72,6 +72,13 @@ Singleton {
     readonly property int dateWidth:  100
     readonly property int groupGap: 24
 
+    // ===== Shared UI for popups =====
+    readonly property int   radius:       0
+    readonly property int   pad:          8
+    readonly property int   gap:          6
+    readonly property int   borderWidth:  1
+    readonly property color borderFocus:  accent           // mango focus_color
+    readonly property color borderNormal: outlineVariant   // mango border_color
 
     function boost(c, satFactor, lightness) {
         const l = lightness >= 0 ? lightness : c.hslLightness

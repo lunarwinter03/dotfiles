@@ -6,33 +6,44 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    // Monitor, auf dem das jeweilige Fenster offen ist ("" = geschlossen)
+    // Screen the window is open on ("" = closed). Only one at a time.
     property string network: ""
     property string wallpaper: ""
+    property string notifications: ""
+
+    // Visible height of the open network window, popups move below it
+    property real networkHeight: 0
+
+    onNetworkChanged:       if (network !== "")       { wallpaper = ""; notifications = "" }
+    onWallpaperChanged:     if (wallpaper !== "")     { network = ""; notifications = "" }
+    onNotificationsChanged: if (notifications !== "") { network = ""; wallpaper = "" }
 
     function closeAll() {
         network = ""
         wallpaper = ""
+        notifications = ""
     }
 
-    // Name des fokussierten Monitors (aus Mango), sonst der erste Bildschirm
+    // Focused screen from mango, otherwise the first one
     function focusedScreen() {
         const mons = Mango.monitors
         const active = Object.keys(mons).find(name => mons[name].active)
         return active ?? (Quickshell.screens.length > 0 ? Quickshell.screens[0].name : "")
     }
 
-    // Von außen aufrufbar: qs ipc call wallpaper toggle
+    // qs ipc call wallpaper toggle
     IpcHandler {
         target: "wallpaper"
-
         function toggle(): void {
-            if (root.wallpaper !== "") {
-                root.wallpaper = ""
-            } else {
-                root.network = ""
-                root.wallpaper = root.focusedScreen()
-            }
+            root.wallpaper = root.wallpaper !== "" ? "" : root.focusedScreen()
+        }
+    }
+
+    // qs ipc call notifications toggle
+    IpcHandler {
+        target: "notifications"
+        function toggle(): void {
+            root.notifications = root.notifications !== "" ? "" : Notifs.targetScreen
         }
     }
 }

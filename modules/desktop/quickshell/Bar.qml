@@ -161,4 +161,12 @@ PanelWindow {
     WallpaperPicker {
         targetScreen: bar.modelData
     }
+    
+    NotificationPopups {
+        targetScreen: bar.modelData
+    }
+
+    NotificationCenter {
+        targetScreen: bar.modelData
+    }
 }

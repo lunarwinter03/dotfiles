@@ -6,15 +6,35 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    // Monitorname -> Monitordaten aus mmsg, z.B. monitors["DP-1"].tags
+    // Monitor name -> monitor data from mmsg, e.g. monitors["DP-1"].tags
     property var monitors: ({})
+
+    // App that last had focus on the active monitor
+    property string lastFocusApp: ""
+
+    // Switch to the "remote" keymode while a remote desktop window has focus.
+    // Only acts when the focus changes, so Ctrl+Alt+Esc can still leave the mode.
+    function updateKeymode(parsed) {
+        const active = parsed.monitors.find(m => m.active)
+        if (!active)
+            return
+        const app = (active.active_client && active.active_client.appid) || ""
+        if (app === lastFocusApp)
+            return
+        lastFocusApp = app
+
+        const lower = app.toLowerCase()
+        const remote = Config.remoteApps.some(r => lower.includes(r))
+        const wanted = remote ? "remote" : "default"
+        if (active.keymode !== wanted)
+            Quickshell.execDetached(["mmsg", "dispatch", "setkeymode," + wanted])
+    }
 
     Process {
         id: proc
         command: ["mmsg", "watch", "all-monitors"]
         running: true
 
-        // Jede Ausgabezeile einzeln verarbeiten
         stdout: SplitParser {
             onRead: data => {
                 try {
@@ -23,13 +43,14 @@ Singleton {
                     for (const m of parsed.monitors)
                         map[m.name] = m
                     root.monitors = map
+                    root.updateKeymode(parsed)
                 } catch (e) {
-                    console.warn("Mango: mmsg-Ausgabe nicht lesbar:", e)
+                    console.warn("Mango: cannot parse mmsg output:", e)
                 }
             }
         }
 
-        // Endet mmsg (z.B. Mango neu gestartet), nach einer Sekunde neu starten
+        // mmsg ends when mango restarts, try again after a second
         onExited: restartTimer.start()
     }
 

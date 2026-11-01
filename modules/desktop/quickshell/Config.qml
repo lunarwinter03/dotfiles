@@ -3,6 +3,9 @@ import QtQuick
 import Quickshell
 
 Singleton {
+    // Focused windows whose appid contains one of these use mango's "remote" keymode
+    readonly property var remoteApps: ["freerdp"]
+
     // ===== Unterkante der Leiste =====
     // "none"     = aus
     // "solid"    = einfarbig (Akzentfarbe)
@@ -17,6 +20,13 @@ Singleton {
     readonly property string borderDirection: "right" // Richtung wohin (to) <left|right>
     readonly property real borderSaturation: 1.8   // 1.0 = unverändert, 2.0 = doppelt (max. 100 %)
     readonly property real borderLightness:  0.6   // Ziel-Helligkeit 0–1, -1 = unverändert
+
+    // ===== Notifications =====
+    readonly property int notificationTimeout:         3     // seconds, if the app sets none
+    readonly property int notificationWidth:           360
+    readonly property int notificationMaxVisible:      4
+    readonly property int notificationHistoryMax:      50
+    readonly property int notificationCenterMaxHeight: 500
 
     // Farben für "gradient"
     readonly property color borderColorA: Theme.accent
