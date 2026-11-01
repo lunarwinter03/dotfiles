@@ -9,7 +9,7 @@ PanelWindow {
     required property string deviceName
     required property var wifiDevice
 
-    // ===== Verbindungs-Zustand (im Fenster, da Einträge neu erzeugt werden) =====
+    // Connection state lives here, entries are recreated on every scan
     property var pendingNet: null
     property string pendingKey: ""
     property bool pskSent: false
@@ -17,7 +17,6 @@ PanelWindow {
     property string errorFor: ""
     property string errorText: ""
 
-    // Passendes Quickshell-Netz zu einem Namen finden
     function findNet(ssid) {
         if (!wifiDevice || ssid === "")
             return null
@@ -49,7 +48,6 @@ PanelWindow {
         WifiScan.connectBssid(ssid, bssid)
     }
 
-    // Fehlschlag beim Verbinden auswerten
     Connections {
         target: popup.pendingNet
         ignoreUnknownSignals: true
@@ -57,10 +55,10 @@ PanelWindow {
             if (reason === ConnectionFailReason.NoSecrets) {
                 popup.passwordFor = popup.pendingKey
                 popup.errorFor    = popup.pskSent ? popup.pendingKey : ""
-                popup.errorText   = "Passwort falsch"
+                popup.errorText   = "Wrong password"
             } else {
                 popup.errorFor  = popup.pendingKey
-                popup.errorText = "Verbindung fehlgeschlagen"
+                popup.errorText = "Connection failed"
             }
         }
     }
@@ -70,19 +68,20 @@ PanelWindow {
         function onBssidConnectFinished(ok) {
             if (!ok) {
                 popup.errorFor  = popup.pendingKey
-                popup.errorText = "Wechsel zum Access Point fehlgeschlagen"
+                popup.errorText = "Switching access point failed"
             }
         }
     }
 
-    // Aktualisierung pausieren, solange in DIESEM Fenster ein Passwort getippt wird
+    // Pause rescans while a password is typed in this window
     Binding {
         target: WifiScan
         property: "paused"
         value: popup.passwordFor !== ""
         when: popup.visible
     }
-    // Popups need the visible height to move below this window
+
+    // Notification popups move below this window
     Binding {
         target: Popups
         property: "networkHeight"
@@ -93,25 +92,23 @@ PanelWindow {
     screen: targetScreen
     visible: Popups.network === targetScreen.name
 
-    // ===== Position: oben rechts, direkt unter der Leiste =====
     anchors { top: true; right: true }
     exclusionMode: ExclusionMode.Ignore
     margins {
-        top: Theme.barHeight + (Config.borderMode !== "none" ? Config.borderWidth : 0) + 6
-        right: 8
+        top: Theme.barHeight + (Config.borderMode !== "none" ? Config.borderWidth : 0) + Theme.gap
+        right: Theme.pad
     }
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
     WlrLayershell.namespace: "quickshell-network"
 
-    // ===== Feste Fenstergröße, sichtbar ist nur der Kasten =====
+    // Fixed size, only the box is visible and clickable
     color: "transparent"
     implicitWidth: 370
     implicitHeight: Config.networkPopupMaxHeight + 100
     mask: Region { item: content }
 
-    // ===== Aufgeklappte Netze =====
     property var expanded: ({})
     function toggle(key) {
         const e = Object.assign({}, expanded)
@@ -126,126 +123,76 @@ PanelWindow {
             content.forceActiveFocus()
         } else {
             WifiScan.close()
-	    passwordFor= ""
-	    errorFor= ""
+            passwordFor = ""
+            errorFor = ""
         }
     }
 
-        FocusScope {
+    FocusScope {
         id: content
         width: parent.width
         height: box.height
-
         focus: true
+
         Keys.onEscapePressed: Popups.closeAll()
-        // Fokus verloren = in ein anderes Fenster geklickt
         onActiveFocusChanged: if (!activeFocus && popup.visible) Popups.closeAll()
 
-        Rectangle {
+        PopupBox {
             id: box
             width: parent.width
-            height: col.implicitHeight + 16
-            radius: Theme.popupRadius
-            color: Theme.popupBg
-            border.width: 1
-            border.color: Theme.outlineVariant
 
-            Column {
-                id: col
-                x: 8
-                y: 8
-                width: parent.width - 16
-                spacing: 6
+            PopupHeader {
+                title: "Wi-Fi"
 
-                // ===== Kopfzeile mit WLAN-Schalter =====
-                Item {
-                    width: parent.width
-                    height: 18
-
-                    Text {
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "WLAN"
-                        color: Theme.fg
-                        font.pixelSize: Theme.fontLarge
-                        font.bold: true
-                    }
-
-                    Rectangle {
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 32
-                        height: 16
-                        radius: 8
-                        color: Networking.wifiEnabled ? Theme.accent : Theme.outlineVariant
-
-                        Rectangle {
-                            width: 12
-                            height: 12
-                            radius: 6
-                            y: 2
-                            x: Networking.wifiEnabled ? parent.width - width - 2 : 2
-                            color: Theme.bgBase
-                            Behavior on x { NumberAnimation { duration: 120 } }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: Networking.wifiEnabled = !Networking.wifiEnabled
-                        }
-                    }
+                Toggle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    checked: Networking.wifiEnabled
+                    onToggled: Networking.wifiEnabled = !Networking.wifiEnabled
                 }
+            }
 
-                // ===== Eigene IP =====
-                SelectableText {
-                    visible: WifiScan.ipAddress !== ""
-                    text: popup.deviceName + "   " + WifiScan.ipAddress
-                    color: Theme.fgDim
-                    font.pixelSize: Theme.fontSmall
-                    font.family: Theme.fontMono
+            SelectableText {
+                visible: WifiScan.ipAddress !== ""
+                text: popup.deviceName + "  " + WifiScan.ipAddress
+                color: Theme.fgDim
+                font.pixelSize: Theme.fontSmall
+                font.family: Theme.fontMono
+            }
+
+            Separator {}
+
+            ListView {
+                id: list
+                width: parent.width
+                height: Math.min(contentHeight, Config.networkPopupMaxHeight)
+                clip: true
+                spacing: 2
+                model: Networking.wifiEnabled ? WifiScan.networks : []
+
+                delegate: NetworkEntry {
+                    width: list.width
+                    qsNet: popup.findNet(modelData.ssid)
+                    expanded: popup.expanded[modelData.key] === true
+                    askPassword: popup.passwordFor === modelData.key
+                    errorText: popup.errorFor === modelData.key ? popup.errorText : ""
+
+                    onToggleExpanded: popup.toggle(modelData.key)
+                    onConnectRequested: popup.connectTo(modelData.key, qsNet)
+                    onDisconnectRequested: if (qsNet) qsNet.disconnect()
+                    onBssidConnectRequested: bssid => popup.connectBssid(modelData.key, modelData.ssid, bssid)
+                    onPasswordSubmitted: psk => popup.submitPassword(psk)
+                    onPasswordCancelled: popup.passwordFor = ""
                 }
+            }
 
-                Rectangle {
-                    width: parent.width
-                    height: 1
-                    color: Theme.outlineVariant
-                }
-
-                // ===== Liste =====
-                ListView {
-                    id: list
-                    width: parent.width
-                    height: Math.min(contentHeight, Config.networkPopupMaxHeight)
-                    clip: true
-                    spacing: 2
-                    model: Networking.wifiEnabled ? WifiScan.networks : []
-
-                    delegate: NetworkEntry {
-                        width: list.width
-                        qsNet: popup.findNet(modelData.ssid)
-                        expanded:    popup.expanded[modelData.key] === true
-                        askPassword: popup.passwordFor === modelData.key
-                        errorText:   popup.errorFor === modelData.key ? popup.errorText : ""
-
-                        onToggleExpanded:      popup.toggle(modelData.key)
-                        onConnectRequested:    popup.connectTo(modelData.key, qsNet)
-                        onDisconnectRequested: if (qsNet) qsNet.disconnect()
-                        onBssidConnectRequested: bssid => popup.connectBssid(modelData.key, modelData.ssid, bssid)
-                        onPasswordSubmitted:     psk => popup.submitPassword(psk)
-                        onPasswordCancelled:     popup.passwordFor = ""
-                    }
-                }
-
-                Text {
-                    visible: list.count === 0
-                    text: !Networking.wifiEnabled ? "WLAN ist ausgeschaltet"
-                        : WifiScan.scanning       ? "Suche …"
-                        : "Keine Netze gefunden"
-                    color: Theme.fgDim
-                    font.pixelSize: Theme.fontSmall
-                }
-            }   // Column
-        }       // Rectangle box
-    }           // FocusScope
-}               // PanelWindow
+            Text {
+                visible: list.count === 0
+                text: !Networking.wifiEnabled ? "Wi-Fi is off"
+                    : WifiScan.scanning ? "Scanning …"
+                    : "No networks found"
+                color: Theme.fgDim
+                font.pixelSize: Theme.fontSmall
+            }
+        }
+    }
+}

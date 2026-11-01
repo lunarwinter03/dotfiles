@@ -36,6 +36,8 @@ Singleton {
                 root.hidePopup(n)
                 delete root.times[n.id]
             })
+	    if (n.lastGeneration)
+                return
 
             const critical = n.urgency === NotificationUrgency.Critical
             if (root.dnd && !critical)

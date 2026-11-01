@@ -14,8 +14,8 @@ PanelWindow {
     readonly property bool vertical: Config.pickerOrientation === "vertical"
     readonly property int thumbW: Config.pickerThumbWidth
     readonly property int thumbH: Math.round(thumbW * 9 / 16)
-    readonly property int cellW: thumbW + 12
-    readonly property int cellH: thumbH + 12
+    readonly property int cellW: thumbW + 2 * Theme.gap
+    readonly property int cellH: thumbH + 2 * Theme.gap
     readonly property int visibleCount: Math.max(1, Math.min(Config.pickerMaxVisible,
         vertical ? Math.floor(targetScreen.height * 0.9 / cellH)
                  : Math.floor(targetScreen.width  * 0.9 / cellW)))
@@ -114,10 +114,6 @@ PanelWindow {
         return (i >= 0 && i < folder.count) ? folder.get(i).filePath : ""
     }
 
-    function nameAt(i) {
-        return (i >= 0 && i < folder.count) ? folder.get(i).fileName : ""
-    }
-
     function currentPath() {
         return pathAt(list.currentIndex)
     }
@@ -125,13 +121,15 @@ PanelWindow {
     // -H: picker folders may be symlinks, e.g. into the dotfiles repo
     Process {
         id: scanProc
+        // -H: picker folders may be symlinks; realpath matches what awww reports
         command: ["find", "-H"]
             .concat(Config.pickerFolders.map(d => Quickshell.env("HOME") + "/" + d))
             .concat(["-maxdepth", "1", "-type", "f",
                      "(", "-iname", "*.jpg", "-o", "-iname", "*.jpeg",
-                     "-o", "-iname", "*.png", "-o", "-iname", "*.webp", ")"])
-        stdout: StdioCollector {
-            onStreamFinished: picker.fillModel(text)
+                     "-o", "-iname", "*.png", "-o", "-iname", "*.webp", ")",
+		     "-exec", "realpath", "{}", "+"])
+	stdout: StdioCollector {
+	    onStreamFinished: picker.fillModel(text)
         }
     }
 
@@ -174,8 +172,8 @@ PanelWindow {
         for (let i = 0; i < folder.count; i++) {
             if (pathAt(i) === path) {
                 list.currentIndex = i
-                list.positionViewAtIndex(i, ListView.Center)
-                return
+		Qt.callLater(() => list.positionViewAtIndex(i, ListView.Center))
+		return
             }
         }
     }
@@ -209,20 +207,12 @@ PanelWindow {
         }
     }
 
-    // ===== Box =====
-    Rectangle {
+    PopupBox {
         id: box
-        width:  (picker.vertical ? picker.cellW : picker.cellW * picker.visibleCount) + 20
-        height: (picker.vertical ? picker.cellH * picker.visibleCount : picker.cellH) + 20 + 24 + 22
-        radius: Theme.popupRadius
-        color: Theme.popupBg
-        border.width: 1
-        border.color: Theme.outlineVariant
+        width: list.width + 2 * Theme.pad
 
         ListView {
             id: list
-            x: 10
-            y: 10
             width:  picker.vertical ? picker.cellW : picker.cellW * picker.visibleCount
             height: picker.vertical ? picker.cellH * picker.visibleCount : picker.cellH
             orientation: picker.vertical ? ListView.Vertical : ListView.Horizontal
@@ -251,7 +241,7 @@ PanelWindow {
                     anchors.centerIn: parent
                     width: picker.thumbW
                     height: picker.thumbH
-                    radius: 6
+                    radius: Theme.radius
                     scale: entry.current ? 1.0 : 0.85
                     opacity: entry.current ? 1.0 : 0.55
                     Behavior on scale   { NumberAnimation { duration: 120 } }
@@ -272,10 +262,10 @@ PanelWindow {
                     anchors.centerIn: parent
                     width: picker.thumbW + 4
                     height: picker.thumbH + 4
-                    radius: 8
+                    radius: Theme.radius
                     color: "transparent"
                     border.width: 2
-                    border.color: Theme.accent
+                    border.color: Theme.borderFocus
                     visible: entry.current
                 }
 
@@ -309,51 +299,48 @@ PanelWindow {
             }
         }
 
-        Row {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: label.top
-            anchors.bottomMargin: 8
+        // Fixed size, so the box does not resize while colours load.
+        // Source colours stay round, like toggles.
+        Item {
+            width: parent.width
             height: 14
-            spacing: 8
 
-            Repeater {
-                model: picker.sourceColors
+            Row {
+                anchors.centerIn: parent
+                spacing: Theme.pad
 
-                Rectangle {
-                    id: swatch
-                    required property string modelData
-                    required property int index
-                    readonly property bool selected: index === picker.sourceIndex
+                Repeater {
+                    model: picker.sourceColors
 
-                    width: 14
-                    height: 14
-                    radius: 7
-                    color: modelData
-                    scale: selected ? 1.25 : 1.0
-                    border.width: selected ? 2 : 1
-                    border.color: selected ? Theme.fg : Theme.outlineVariant
-                    Behavior on scale { NumberAnimation { duration: 100 } }
+                    Rectangle {
+                        id: swatch
+                        required property string modelData
+                        required property int index
+                        readonly property bool selected: index === picker.sourceIndex
 
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: picker.sourceIndex = swatch.index
+                        width: 14
+                        height: 14
+                        radius: 7
+                        color: modelData
+                        scale: selected ? 1.25 : 1.0
+                        border.width: selected ? 2 : Theme.borderWidth
+                        border.color: selected ? Theme.fg : Theme.borderNormal
+                        Behavior on scale { NumberAnimation { duration: 100 } }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: picker.sourceIndex = swatch.index
+                        }
                     }
                 }
             }
-        }
+	}
 
-        Text {
-            id: label
+        Cycler {
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-            width: parent.width - 20
-            horizontalAlignment: Text.AlignHCenter
-            elide: Text.ElideMiddle
-            text: "   ◂ " + picker.scheme.replace("scheme-", "") + " ▸"
-            color: Theme.fgDim
-            font.pixelSize: Theme.fontSmall
+            value: picker.scheme.replace("scheme-", "")
+            onStep: delta => picker.cycleScheme(delta)
         }
     }
 }

@@ -3,7 +3,7 @@ import QtQuick
 Column {
     id: root
     required property var modelData
-    property var qsNet: null               // passendes Quickshell-Netz (null = unbekannt)
+    property var qsNet: null            // matching Quickshell network, null if unknown
     property bool expanded: false
     property bool askPassword: false
     property string errorText: ""
@@ -19,26 +19,25 @@ Column {
     readonly property var mainAp: net.aps.find(a => a.inUse) ?? net.aps[0]
     readonly property bool multi: net.aps.length > 1
     readonly property bool busy: (qsNet !== null && qsNet.stateChanging)
-                              || net.aps.some(a => a.bssid === WifiScan.connectingBssid)
+                                 || net.aps.some(a => a.bssid === WifiScan.connectingBssid)
 
     spacing: 2
 
     onAskPasswordChanged: if (askPassword) pw.forceActiveFocus()
 
-    // " · 5 GHz" oder "", je nachdem ob die Frequenz bekannt ist
     function bandSuffix(ap) {
         const b = WifiScan.bandLabel(ap.freq)
-        return b !== "" ? "  · " + b : ""
+        return b !== "" ? " · " + b : ""
     }
 
-    // ===== Hauptzeile =====
+    // ===== Main row =====
     Rectangle {
         width: root.width
         height: 34
-        radius: 4
+        radius: Theme.radius
         color: hover.containsMouse ? Qt.rgba(Theme.fg.r, Theme.fg.g, Theme.fg.b, 0.06) : "transparent"
 
-        // Klick auf freie Fläche klappt auf (Text darüber bleibt markierbar)
+        // Click on free space expands; text on top stays selectable
         MouseArea {
             id: hover
             anchors.fill: parent
@@ -49,28 +48,28 @@ Column {
 
         SignalBars {
             id: bars
-            x: 6
+            x: Theme.gap
             anchors.verticalCenter: parent.verticalCenter
             strength: root.net.signal
             activeColor: root.net.inUse ? Theme.accent : Theme.fg
         }
 
-        // Rechts: Knopf, Schloss, Pfeil
         Row {
             id: icons
             anchors.right: parent.right
-            anchors.rightMargin: 6
+            anchors.rightMargin: Theme.gap
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 6
+            spacing: Theme.gap
 
             SmallButton {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: !root.net.hidden
                 enabled: root.qsNet !== null
                 busy: root.busy
-                label: root.net.inUse ? "Trennen" : "Verbinden"
+                label: root.net.inUse ? "Disconnect" : "Connect"
                 onClicked: root.net.inUse ? root.disconnectRequested() : root.connectRequested()
             }
+
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: root.net.security !== ""
@@ -79,6 +78,7 @@ Column {
                 font.pixelSize: Theme.fontIcon
                 color: Theme.fgDim
             }
+
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: root.multi
@@ -89,17 +89,16 @@ Column {
             }
         }
 
-        // Mitte: Name und darunter die BSSID
         Column {
             anchors.left: bars.right
-            anchors.leftMargin: 8
+            anchors.leftMargin: Theme.pad
             anchors.right: icons.left
-            anchors.rightMargin: 6
+            anchors.rightMargin: Theme.gap
             anchors.verticalCenter: parent.verticalCenter
             clip: true
 
             SelectableText {
-                text: root.net.hidden ? "Verstecktes Netz" : root.net.ssid
+                text: root.net.hidden ? "Hidden network" : root.net.ssid
                 font.italic: root.net.hidden
                 font.bold: root.net.inUse
                 color: root.net.hidden ? Theme.fgDim
@@ -114,9 +113,9 @@ Column {
                     font.family: Theme.fontMono
                     color: Theme.fgDim
                 }
-		Text {
-                    text: "   " + root.mainAp.signal + "%" + root.bandSuffix(root.mainAp)
-                        + (root.multi ? "   · " + root.net.aps.length + " APs" : "")
+                Text {
+                    text: "  " + root.mainAp.signal + "%" + root.bandSuffix(root.mainAp)
+                          + (root.multi ? " · " + root.net.aps.length + " APs" : "")
                     font.pixelSize: Theme.fontSmall
                     font.family: Theme.fontMono
                     color: Theme.fgDim
@@ -125,7 +124,7 @@ Column {
         }
     }
 
-    // ===== Ausgeklappt: alle Access Points =====
+    // ===== Expanded: all access points =====
     Column {
         visible: root.expanded && root.multi
         x: 28
@@ -151,7 +150,7 @@ Column {
 
                 Row {
                     anchors.left: apBars.right
-                    anchors.leftMargin: 6
+                    anchors.leftMargin: Theme.gap
                     anchors.verticalCenter: parent.verticalCenter
 
                     SelectableText {
@@ -160,8 +159,8 @@ Column {
                         font.family: Theme.fontMono
                         color: apRow.modelData.inUse ? Theme.accent : Theme.fgDim
                     }
-		    Text {
-                        text: "   " + apRow.modelData.signal + "%" + root.bandSuffix(apRow.modelData)
+                    Text {
+                        text: "  " + apRow.modelData.signal + "%" + root.bandSuffix(apRow.modelData)
                         font.pixelSize: Theme.fontSmall
                         font.family: Theme.fontMono
                         color: Theme.fgDim
@@ -174,14 +173,15 @@ Column {
                     visible: !apRow.modelData.inUse
                     enabled: root.qsNet !== null && root.qsNet.known
                     busy: WifiScan.connectingBssid === apRow.modelData.bssid
-                    label: "Verbinden"
+                    label: "Connect"
                     onClicked: root.bssidConnectRequested(apRow.modelData.bssid)
                 }
+
                 Text {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     visible: apRow.modelData.inUse
-                    text: "● verbunden"
+                    text: "● connected"
                     font.pixelSize: Theme.fontSmall
                     color: Theme.accent
                 }
@@ -189,22 +189,22 @@ Column {
         }
     }
 
-    // ===== Passwortfeld =====
+    // ===== Password =====
     Rectangle {
         visible: root.askPassword
         x: 28
         width: root.width - 34
         height: 22
-        radius: 4
+        radius: Theme.radius
         color: "transparent"
-        border.width: 1
-        border.color: Theme.accent
+        border.width: Theme.borderWidth
+        border.color: Theme.borderFocus
 
         TextInput {
             id: pw
             anchors.fill: parent
-            anchors.leftMargin: 6
-            anchors.rightMargin: 6
+            anchors.leftMargin: Theme.gap
+            anchors.rightMargin: Theme.gap
             verticalAlignment: TextInput.AlignVCenter
             echoMode: TextInput.Password
             color: Theme.fg
@@ -218,22 +218,21 @@ Column {
             Keys.onEscapePressed: event => {
                 text = ""
                 root.passwordCancelled()
-                event.accepted = true      // Esc schließt nur das Feld, nicht das Fenster
+                event.accepted = true    // Esc closes the field, not the window
             }
         }
 
         Text {
             anchors.left: parent.left
-            anchors.leftMargin: 6
+            anchors.leftMargin: Theme.gap
             anchors.verticalCenter: parent.verticalCenter
             visible: pw.text === ""
-            text: "Passwort, Enter zum Verbinden"
+            text: "Password, Enter to connect"
             color: Theme.fgDim
             font.pixelSize: Theme.fontSmall
         }
     }
 
-    // ===== Fehlermeldung =====
     Text {
         visible: root.errorText !== ""
         x: 28
