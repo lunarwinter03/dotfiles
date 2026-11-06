@@ -12,7 +12,6 @@ quickshell
 awww
 matugen
 fuzzel
-dunst
 xdg-desktop-portal-gtk
 xdg-desktop-portal-wlr
 adw-gtk-theme

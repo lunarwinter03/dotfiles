@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+shopt -s nullglob
+iso_dir="${VBOX_ISO_DIR:-$HOME/iso}"
+key="GUI/RecentListCD"
+
+cur=$(VBoxManage getextradata global "$key" | sed -n 's/^Value: //p')
+mapfile -t list < <(
+  { [ -n "$cur" ] && tr ',' '\n' <<<"$cur"; printf '%s\n' "$iso_dir"/*.{iso,ISO}; } \
+  | awk 'NF && !seen[$0]++'
+)
+VBoxManage setextradata global "$key" "$(IFS=,; echo "${list[*]}")"
+
+exec /usr/bin/VirtualBox "$@"
