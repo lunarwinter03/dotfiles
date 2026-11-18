@@ -20,7 +20,8 @@ for ((i = 0; i < ${#args[@]} - 1; i++)); do
   fi
 done
 
-matugen "$@" --import-json "$SETTINGS" --import-json "$FONTS"
+matugen "$@" --import-json "$SETTINGS" --import-json "$FONTS" \
+  --import-json-string "{\"env\":{\"home\":\"$HOME\"}}"
 
 # GTK-Schriften (gsettings), nur setzen, wenn sie sich unterscheiden
 gset() {

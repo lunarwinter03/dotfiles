@@ -18,6 +18,14 @@ output_path = '~/.local/state/theme/gtk-colors.css'
 # Laufende GTK3-Programme zum Neuladen bringen: Theme kurz umstellen und zurück
 post_hook   = 'gsettings set org.gnome.desktop.interface gtk-theme Adwaita && gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-matugen || true'
 
+[templates.qt6ct]
+input_path  = '~/.config/matugen/templates/qt6ct.conf'
+output_path = '~/.config/qt6ct/qt6ct.conf'
+
+[templates.qt6ct-colors]
+input_path  = '~/.config/matugen/templates/qt6ct-colors.conf'
+output_path = '~/.config/qt6ct/colors/matugen.conf'
+
 [templates.kitty]
 input_path  = '~/.config/matugen/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors.conf'

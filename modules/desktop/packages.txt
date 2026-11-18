@@ -15,6 +15,7 @@ fuzzel
 xdg-desktop-portal-gtk
 xdg-desktop-portal-wlr
 adw-gtk-theme
+qt6ct
 ly
 
 # Werkzeuge für Tastenkürzel und Leiste
