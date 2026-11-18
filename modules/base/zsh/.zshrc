@@ -72,6 +72,7 @@ bindkey '^[[F'    end-of-line          # Ende
 # ===== Aliase =====
 alias zedit="nvim ~/.zshrc"
 alias colors='for i in {0..15}; do print -Pn "%K{$i}  $(printf %2d $i)  %k"; ((i==7)) && echo; done; echo;for i in {0..15}; do print -Pn "%F{$i}██ $(printf %2d $i)%f  "; ((i==7)) && echo; done; echo'
+alias stree="tree --du -h --sort=size . | grep -v -E '^[^[]{12,}\['"
 # ls
 alias ls="eza --group-directories-first --icons always"
 alias la="eza --group-directories-first --icons always --all --long"
